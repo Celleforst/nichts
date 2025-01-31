@@ -4,9 +4,9 @@
     lfs.enable = true;
     config = {
       user = {
-        name = "Charlie Root";
-        email = "charlie@charlieroot.dev";
-        signingKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILPiRe9OH/VtWFWyy5QbAVcN7CLxr4zUtRCwmxD6aeN6";
+        name = "Marcello Krahforst";
+        email = "marcello.2001@hotmail.com";
+        signingKey = "";
       };
       init.defaultbranch = "main";
       branch.autosetupmerge = "true";

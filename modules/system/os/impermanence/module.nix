@@ -16,8 +16,8 @@ in {
     users = {
       mutableUsers = true;
       users = {
-        cr = {
-          hashedPasswordFile = "/persist/passwords/cr";
+        mk = {
+          hashedPasswordFile = "/persist/passwords/mk";
         };
         root.hashedPasswordFile = "/persist/passwords/root";
       };
@@ -38,7 +38,7 @@ in {
         "/var/lib/systemd/coredump"
       ];
 
-      users.cr = {
+      users.mk = {
         directories =
           [
             "cloud"

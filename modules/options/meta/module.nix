@@ -11,7 +11,7 @@ in {
   options.meta = {
     users = mkOption {
       type = listOf str;
-      default = ["cr"];
+      default = ["mk"];
       description = ''
         A list of users on a system.
       '';
