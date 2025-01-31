@@ -6,8 +6,6 @@ inputs: let
   inherit (builtins) filter map toString;
   inherit (lib.filesystem) listFilesRecursive;
   inherit (lib.strings) hasSuffix;
-  # NOTE: This was inspired by raf, and I find this
-  # to be quite a sane way of managing all modules in my flake.
 
   mkSystem = {
     system,
@@ -54,5 +52,10 @@ in {
   hermit = mkSystem {
     system = "x86_64-linux";
     hostname = "hermit";
+  };
+
+  saturn = mkSystem {
+    system = "x86_64-linux";
+    hostname = "saturn";
   };
 }
