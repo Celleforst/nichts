@@ -6,7 +6,7 @@
       user = {
         name = "Marcello Krahforst";
         email = "marcello.2001@hotmail.com";
-        signingKey = "";
+        signingKey = "AAAAC3NzaC1lZDI1NTE5AAAAIGegfVVNNvW7NtNU7KPTr9dacEAvpd4ZQDWzZ5oU/q53";
       };
       init.defaultbranch = "main";
       branch.autosetupmerge = "true";

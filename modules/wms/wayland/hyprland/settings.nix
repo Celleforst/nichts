@@ -32,8 +32,8 @@ in {
 
         # Input settings
         input = {
-          kb_layout = "gb,ru,de";
-          kb_variant = ",phonetic_winkeys,";
+          kb_layout = "ch,de,us";
+          kb_variant = ",,";
           kb_options = "grp:rctrl_rshift_toggle, caps:escape";
 
           follow_mouse = true;
@@ -57,7 +57,7 @@ in {
         };
 
         plugin = {
-          hyprsplit = {
+            hyprsplit = {
             num_workspaces = 10;
             persistent_workspaces = true;
           };

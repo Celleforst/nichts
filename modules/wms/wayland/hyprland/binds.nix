@@ -5,7 +5,7 @@
 }: let
   cfg = config.modules.usrEnv.desktops.hyprland;
   inherit (builtins) map genList toString;
-in {
+  in {
   programs.hyprland.settings = {
     # Keybinds
     bind =
@@ -28,10 +28,11 @@ in {
       ) (genList (i: i + 1) 10)
       ++ [
         "$mainMod, RETURN, exec, foot"
-        "$mainMod, Q, killactive"
-        "$mainMod, F, fullscreen, 0"
-        "$mainMod, D, exec, ${pkgs.procps}/bin/pkill walker || ${pkgs.walker}/bin/walker"
-        "$mainMod, SPACE, togglefloating, active"
+        "$mainMod, C, killactive"
+        "$mainMod, SPACE, fullscreen, 0"
+        "$mainMod, M, exec, ${pkgs.procps}/bin/pkill walker || ${pkgs.walker}/bin/walker" # open App Menu
+        "$mainMod, F, togglefloating, active"
+        "$mainMod, S, togglesplit" # swap windows in split
 
         # Screenshotting
         "$mainMod, S, exec, ${pkgs.grimblast}/bin/grimblast copy area" # only copy
@@ -39,6 +40,9 @@ in {
 
         # File manager
         "$mainMod, E, exec, ${pkgs.xfce.thunar}/bin/thunar"
+
+        # Browser
+        "$mainMod, B, exec, ${pkgs.firefox}/bin/firefox"
 
         # Toggle the three different special workspaces.
         "$mainMod, N, togglespecialworkspace, nixos"
@@ -64,7 +68,26 @@ in {
       "$mainMod SHIFT, J, movewindow, d"
       "$mainMod SHIFT, K, movewindow, u"
       "$mainMod SHIFT, L, movewindow, r"
-    ];
+
+      # Move floating Windows
+      "$mainMod ALT, right, moveactive, 50 0"
+      "$mainMod ALT, left, moveactive, -50 0"
+      "$mainMod ALT, up, moveactive, 0 -50"
+      "$mainMod ALT, down, moveactive, 0 50"
+
+      # Move Windows Group
+      "$mainMod ALT, H, movewindowgroup, l"
+      "$mainMod ALT, J, movewindowgroup, d"
+      "$mainMod ALT, K, movewindowgroup, u"
+      "$mainMod ALT, L, movewindowgroup, r"
+
+      # Resize Windows
+      "$mainMod CTRL, H, resizeactive, -50 0"
+      "$mainMod CTRL, J, resizeactive, 50 0"
+      "$mainMod CTRL, K, resizeactive, 0 -50"
+      "$mainMod CTRL, L, resizeactive, 0 50"
+
+       ];
 
     # Media controls
     bindl = let
@@ -72,33 +95,42 @@ in {
       stop = "${pkgs.playerctl}/bin/playerctl stop";
       prev = "${pkgs.playerctl}/bin/playerctl previous";
       next = "${pkgs.playerctl}/bin/playerctl next";
-      toggle-mute = "${pkgs.pamixer}/bin/pamixer --toggle-mute";
+      toggle-audio-mute = "${pkgs.wireplumber}/bin/wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle";
+      toggle-mic-mute = "${pkgs.pavucontrol}/bin/pactl set-source-mute @DEFAULT_SOURCE@ toggle";
     in [
       ", XF86AudioMedia, exec, ${play-pause}"
       ", XF86AudioPlay,  exec, ${play-pause}"
       ", XF86AudioStop,  exec, ${stop}"
       ", XF86AudioPrev,  exec, ${prev}"
       ", XF86AudioNext,  exec, ${next}"
-      ", XF86AudioMute,  exec, ${toggle-mute}"
-    ];
+      ", XF86AudioMute,  exec, ${toggle-audio-mute}"
+      ", XF86AudioMicMute,  exec, ${toggle-mic-mute}"
+      ];
+      
 
     # locked + repeat
     bindle = let
-      volume_up = "${pkgs.pamixer}/bin/pamixer -ui 5";
-      volume_down = "${pkgs.pamixer}/bin/pamixer -ud 5";
-      brightness_up = "${pkgs.brightnessctl}/bin/brightnessctl set +10%";
-      brightness_down = "${pkgs.brightnessctl}/bin/brightnessctl set 10%-";
+      volume_up = "${pkgs.wireplumber}/bin/wpctl set-volume -l 1.5 @DEFAULT_AUDIO_SINK@ 5%+";
+      volume_down = "${pkgs.wireplumber}/bin/wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-";
+      brightness_up = "${pkgs.brightnessctl}/bin/brightnessctl set +5%";
+      brightness_down = "${pkgs.brightnessctl}/bin/brightnessctl set 5%-";
+      brightness_100 = "${pkgs.brightnessctl}/bin/brightnessctl -q s 100%";
+      brightness_1 = "${pkgs.brightnessctl}/bin/brightnessctl -q s 1%";
+      brightness_50 = "${pkgs.brightnessctl}/bin/brightnessctl -q s 50%";
     in [
       ", XF86AudioRaiseVolume, exec, ${volume_up}"
       ", XF86AudioLowerVolume, exec, ${volume_down}"
       ", XF86MonBrightnessUp, exec, ${brightness_up}"
       ", XF86MonBrightnessDown, exec, ${brightness_down}"
+      "SHIFT, XF86MonBrightnessUP, exec, ${brightness_50}"
+      "SHIFT, XF86MonBrightnessDown, exec, ${brightness_1}"
+      "$mainMod SHIFT, XF86MonBrightnessUP, exec, ${brightness_100}"
     ];
 
     # Mouse settings
     bindm = [
-      "$mainMod, mouse:272, movewindow"
-      "$mainMod, mouse:273, resizewindow"
+      "$mainMod, Control_L, movewindow"
+      "$mainMod, ALT_L, resizewindow"
     ];
 
     # Some more movement-related settings
