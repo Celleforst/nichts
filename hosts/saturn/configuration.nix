@@ -11,7 +11,7 @@
   security.polkit.enable = true;
   programs.kdeconnect.enable = true;
   programs.nix-ld.enable = false;
-  boot.kernelPackages = pkgs.linuxPackages_xanmod_latest;
+  # boot.kernelPackages = pkgs.linuxPackages_xanmod_latest;
   services = {
     fstrim.enable = lib.mkDefault true;
     thermald.enable = true;

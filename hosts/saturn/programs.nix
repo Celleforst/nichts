@@ -38,7 +38,7 @@
     librewolf
     links2
     linuxHeaders
-    mapscii
+    # mapscii
     moc
     mpv
     ncmpcpp

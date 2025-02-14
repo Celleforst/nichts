@@ -11,22 +11,23 @@
     bind =
       # workspaces
       # split-workspace is because of the split-workspace plugin
-      map (
-        i: let
-          mod = a: b: a - (b * (a / b));
-          key = toString (mod i 10);
-          workspace = toString i;
-        in "$mainMod, ${key}, split:workspace, ${workspace}"
-      ) (genList (i: i + 1) 10)
+      #map (
+      #  i: let
+      #    mod = a: b: a - (b * (a / b));
+      #    key = toString (mod i 10);
+      #    workspace = toString i;
+      #  in "$mainMod, ${key}, split:workspace, ${workspace}"
+      #) (genList (i: i + 1) 10)
       # split-movetoworkspacesilent
-      ++ map (
-        i: let
-          mod = a: b: a - (b * (a / b));
-          key = toString (mod i 10);
-          workspace = toString i;
-        in "$mainMod SHIFT, ${key}, split:movetoworkspacesilent, ${workspace}"
-      ) (genList (i: i + 1) 10)
-      ++ [
+      #++ map (
+      #  i: let
+      #    mod = a: b: a - (b * (a / b));
+      #    key = toString (mod i 10);
+      #    workspace = toString i;
+      #  in "$mainMod SHIFT, ${key}, split:movetoworkspacesilent, ${workspace}"
+      #) (genList (i: i + 1) 10)
+      #++ [
+      [
         "$mainMod, RETURN, exec, foot"
         "$mainMod, C, killactive"
         "$mainMod, SPACE, fullscreen, 0"
