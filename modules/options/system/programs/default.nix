@@ -23,6 +23,7 @@ in {
     terminals = {
       foot.enable = mkEnableOption "Foot terminal emulator";
       kitty.enable = mkEnableOption "Kitty terminal emulator";
+      alacritty.enable = mkEnableOption "Alacritty terminal emulator";
     };
 
     git = {
@@ -34,12 +35,12 @@ in {
     };
     default = {
       terminal = mkOption {
-        type = types.enum ["foot" "kitty"];
+        type = types.enum ["foot" "kitty" "alacritty"];
         default = "foot";
       };
       fileManager = mkOption {
         type = types.enum ["thunar" "dolphin" "nemo"];
-        default = "thunar";
+        default = "dolphin";
       };
       browser = mkOption {
         type = types.enum ["firefox" "librewolf" "chromium"];
@@ -47,7 +48,7 @@ in {
       };
       editor = mkOption {
         type = types.enum ["neovim" "helix" "emacs"];
-        default = "emacs";
+        default = "neovim";
       };
       launcher = mkOption {
         type = types.enum ["anyrun" "rofi" "wofi"];

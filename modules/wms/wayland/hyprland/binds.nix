@@ -34,6 +34,9 @@
         "$mainMod, M, exec, ${pkgs.procps}/bin/pkill walker || ${pkgs.walker}/bin/walker" # open App Menu
         "$mainMod, F, togglefloating, active"
         "$mainMod, S, togglesplit" # swap windows in split
+        "$mainMod, Tab, workspace, m+1" # next workspace
+        "$mainMod SHIFT, Tab, workspace, m-1" # previous workspace
+        "$mainMod CTRL, Tab, workspace, empty" # next empty workspace
 
         # Screenshotting
         "$mainMod, S, exec, ${pkgs.grimblast}/bin/grimblast copy area" # only copy
@@ -71,16 +74,16 @@
       "$mainMod SHIFT, L, movewindow, r"
 
       # Move floating Windows
-      "$mainMod ALT, right, moveactive, 50 0"
-      "$mainMod ALT, left, moveactive, -50 0"
-      "$mainMod ALT, up, moveactive, 0 -50"
-      "$mainMod ALT, down, moveactive, 0 50"
+      "$mainMod CTRL, right, moveactive, 50 0"
+      "$mainMod CTRL, left, moveactive, -50 0"
+      "$mainMod CTRL, up, moveactive, 0 -50"
+      "$mainMod CTRL, down, moveactive, 0 50"
 
       # Move Windows Group
-      "$mainMod ALT, H, movewindowgroup, l"
-      "$mainMod ALT, J, movewindowgroup, d"
-      "$mainMod ALT, K, movewindowgroup, u"
-      "$mainMod ALT, L, movewindowgroup, r"
+      "$mainMod ALT, H, movewindoworgroup, l"
+      "$mainMod ALT, J, movewindoworgroup, d"
+      "$mainMod ALT, K, movewindoworgroup, u"
+      "$mainMod ALT, L, movewindoworgroup, r"
 
       # Resize Windows
       "$mainMod CTRL, H, resizeactive, -50 0"

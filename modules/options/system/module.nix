@@ -46,7 +46,7 @@ in {
 
     users = mkOption {
       type = listOf str;
-      default = ["charlie"];
+      default = ["mk"];
       description = "A list of  users on the system.";
     };
 

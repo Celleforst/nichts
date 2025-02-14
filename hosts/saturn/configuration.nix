@@ -68,7 +68,8 @@
       };
       services = {
         locate.enable = true;
-
+        greetd.enable = true;
+      
         media.mpd = {
           enable = true;
         };
