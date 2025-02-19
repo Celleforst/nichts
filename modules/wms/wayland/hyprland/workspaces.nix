@@ -36,9 +36,9 @@ in {
           (attrNames monitors)))
       # These are my two special workspaces
       ++ [
-        "special:nixos, decorate:false"
-        "special:keepassxc, decorate:false"
-        "special:audio, decorate:false"
+      	"special:scratchpad, on-created-empty:foot"
+        "special:nixos, on-created-empty:foot"
+        "special:browser, on-created-empty:firefox"
       ];
   };
 }

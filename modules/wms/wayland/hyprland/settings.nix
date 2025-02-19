@@ -37,24 +37,31 @@ in {
           kb_options = "grp:rctrl_rshift_toggle, caps:escape";
 
           follow_mouse = true;
+	  sensitivity = 0.4;
 
           repeat_rate = 60;
           repeat_delay = 200;
 
           touchpad = {
             disable_while_typing = true;
+	    natural_scroll = true;
           };
         };
 
         general = {
           layout = "dwindle";
-          gaps_in = 0;
-          gaps_out = 0;
-          border_size = 2;
+          gaps_in = 5;
+          gaps_out = 5;
+          border_size = 1;
 
-          "col.active_border" = "0xff${colors.base07}";
-          no_border_on_floating = true;
+          "col.active_border" = "rgba(ffe1ccee) rgba(c89aeaaa) 45deg";
+          "col.inactive_border" = "rgba(595959aa)";
+	  resize_on_border = true;
         };
+
+	gestures = {
+	  workspace_swipe = true;
+	};
 
         plugin = {
             hyprsplit = {
@@ -64,14 +71,16 @@ in {
           dynamic-cursors = {
             enabled = true;
 
-            mode = "rotate";
-            rotate = {
-              length = 20;
-              offset = 0.0;
+            mode = "tilt";
+            tilt = {
+              limit = 5000;
+              function = "quadratic";
             };
             threshhold = 2;
-            shake.enabled = false;
+            shake.enabled = true;
           };
+	  hyprtrails.enable = true;
+	  hyprexpo.enable = true;
         };
       };
     };

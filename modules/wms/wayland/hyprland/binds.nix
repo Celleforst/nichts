@@ -11,22 +11,22 @@
     bind =
       # workspaces
       # split-workspace is because of the split-workspace plugin
-      #map (
+      # map (
       #  i: let
       #    mod = a: b: a - (b * (a / b));
       #    key = toString (mod i 10);
       #    workspace = toString i;
       #  in "$mainMod, ${key}, split:workspace, ${workspace}"
-      #) (genList (i: i + 1) 10)
-      # split-movetoworkspacesilent
-      #++ map (
+      # ) (genList (i: i + 1) 10)
+      # # split-movetoworkspacesilent
+      # ++ map (
       #  i: let
       #    mod = a: b: a - (b * (a / b));
       #    key = toString (mod i 10);
       #    workspace = toString i;
       #  in "$mainMod SHIFT, ${key}, split:movetoworkspacesilent, ${workspace}"
-      #) (genList (i: i + 1) 10)
-      #++ [
+      # ) (genList (i: i + 1) 10)
+      # ++ [
       [
         "$mainMod, RETURN, exec, foot"
         "$mainMod, C, killactive"
@@ -49,9 +49,9 @@
         "$mainMod, B, exec, ${pkgs.firefox}/bin/firefox"
 
         # Toggle the three different special workspaces.
+        "$mainMod, T, togglespecialworkspace, scratchpad"
         "$mainMod, N, togglespecialworkspace, nixos"
-        "$mainMod, X, togglespecialworkspace, keepassxc"
-        "$mainMod, V, togglespecialworkspace, audio"
+        "$mainMod, V, togglespecialworkspace, browser"
 
         # Reload hyprland
         "$mainMod, R, exec, ${cfg.package}/bin/hyprctl reload"

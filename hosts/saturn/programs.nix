@@ -25,5 +25,10 @@
     vesktop
     vlc
     neovim
+    unityhub
+    blender
+    vscode
+    bitwarden-desktop
+    waybar
   ];
 }

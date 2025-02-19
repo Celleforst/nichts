@@ -19,6 +19,7 @@ in {
 
       "${pkgs.wlsunset}/bin/wlsunset -S 06:00 -s 20:00"
       "${pkgs.lxqt.lxqt-policykit}/bin/lxqt-policykit-agent"
+      "${pkgs.procps}/bin/pkill waybar && ${pkgs.waybar}/bin/waybar"
       #"hyprctl dispatch split-workspace 1"
     ];
   };

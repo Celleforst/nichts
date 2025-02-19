@@ -89,5 +89,12 @@
       nh.enable = true;
     };
   };
+
+  services.greetd.enable = true;
+  services.greetd.settings = {
+  	default_session = {
+    		command = "${pkgs.greetd.greetd}/bin/agreety --cmd hyprland";
+  	};
+  };
   system.stateVersion = "23.11";
 }
