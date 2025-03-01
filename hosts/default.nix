@@ -15,6 +15,11 @@ in {
     modules =
       baseModules ++ [./iso];
   };
+  saturn = lib.nixosSystem {
+    inherit system specialArgs;
+    modules =
+      baseModules ++ [./saturn];
+  };
   flocke = lib.nixosSystem {
     inherit system specialArgs;
     modules =
