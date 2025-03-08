@@ -60,7 +60,7 @@
         ];
       wayland = true;
       disks = {
-        auto-partition.enable = enable;
+        auto-partition.enable = true;
         # swap-size = "64G";
         main-disk = "/dev/disk/by-id/nvme-KINGSTON_SNV2S250G_50026B7686A07983";
         # storage-disks = {
