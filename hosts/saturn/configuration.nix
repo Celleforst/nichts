@@ -40,7 +40,7 @@
     system = rec {
       network.hostname = "saturn";
       username = "mk";
-      gitPath = "/flake/nichts2";
+      gitPath = "/flake/nichts";
       # nvidia.enable = true;
       monitors = [
         {
@@ -60,8 +60,8 @@
         ];
       wayland = true;
       disks = {
-        auto-partition.enable = false;
-        swap-size = "64G";
+        auto-partition.enable = enable;
+        # swap-size = "64G";
         main-disk = "/dev/disk/by-id/nvme-KINGSTON_SNV2S250G_50026B7686A07983";
         # storage-disks = {
         #   "small" = "/dev/disk/by-id/nvme-eui.1847418009800001001b448b44810a1a";
