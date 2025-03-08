@@ -16,14 +16,6 @@
         enable = true;
         device = "nodev";
         efiSupport = true;
-        # extraEntries = ''
-        #   menuentry "Reboot" {
-        #     reboot
-        #   }
-        #   menuentry "Poweroff" {
-        #     halt
-        #   }
-        # '';
       };
     };
   };
@@ -32,13 +24,14 @@
   #TODO: Add to  modules.system.monitors as option
   home-manager.users."mk".wayland.windowManager.hyprland.settings = {
     workspace = [
-      "1,monitor:DP-2,default:true"
+      "1,monitor:eDP-1,default:true"
     ];
     # exec-once = [
     #   "xrandr --output DP-2 --primary" # make sure xwayland windows open on right monitor:
     # ];
   };
 
+  console.keyMap = "sg";
   modules = {
     login = {
       greetd.enable = true;
@@ -49,55 +42,25 @@
       username = "mk";
       gitPath = "/flake/nichts2";
       # nvidia.enable = true;
-      # monitors = [
-      #   {
-      #     name = "Main";
-      #     device = "DP-2";
-      #     resolution = {
-      #       x = 2560;
-      #       y = 1440;
-      #     };
-      #     scale = 1.0;
-      #     refresh_rate = 143.998001;
-      #     position = {
-      #       x = 0;
-      #       y = 0;
-      #     };
-      #   }
-      #   {
-      #     name = "Right";
-      #     device = "HDMI-A-3";
-      #     resolution = {
-      #       x = 2560;
-      #       y = 1440;
-      #     };
-      #     scale = 1.0;
-      #     refresh_rate = 74.9999001;
-      #     position = {
-      #       x = 2560;
-      #       y = 200;
-      #     };
-      #     transform = 3;
-      #   }
-      #   {
-      #     name = "Left";
-      #     device = "HDMI-A-2";
-      #     resolution = {
-      #       x = 2560;
-      #       y = 1440;
-      #     };
-      #     scale = 1.0;
-      #     refresh_rate = 74.9999001;
-      #     position = {
-      #       x = -1440;
-      #       y = 200;
-      #     };
-      #     transform = 1;
-      #   }
-      # ];
+      monitors = [
+        {
+          name = "Main";
+          device = "eDP-1";
+          resolution = {
+            x = 1920;
+            y = 1080;
+          };
+          scale = 1;
+          refresh_rate = 60.05600;
+          position = {
+            x = 0;
+            y = 0;
+          };
+        }
+        ];
       wayland = true;
       disks = {
-        auto-partition.enable = true;
+        auto-partition.enable = false;
         swap-size = "64G";
         main-disk = "/dev/disk/by-id/nvme-KINGSTON_SNV2S250G_50026B7686A07983";
         # storage-disks = {

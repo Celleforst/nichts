@@ -23,7 +23,7 @@ in {
 
     # services.xserver = {
     #     enable = true;
-    #     xkb.layout =  "us";
+    #     xkb.layout =  "ch";
     # };
     services.xserver.enable = true;
     services.displayManager = {

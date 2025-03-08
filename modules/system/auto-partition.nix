@@ -112,23 +112,23 @@ in {
                  #   name = "cryptroot" + cfg.name-suffix;
                     content = {
                       type = "btrfs";
-                      #extraArgs = ["-L" "nixos${cfg.name-suffix}" "-f"];
+                      extraArgs = ["-L" "nixos${cfg.name-suffix}" "-f"];
                       subvolumes = {
                         "/root" = {
                           mountpoint = "/";
-                          mountOptions = ["subvol=@" "compress=zstd" "noatime"];
+                          mountOptions = ["subvol=root" "compress=zstd" "noatime"];
                         };
                         "/home" = {
                           mountpoint = "/home";
-                          mountOptions = ["subvol=@home" "compress=zstd" "noatime"];
+                          mountOptions = ["subvol=home" "compress=zstd" "noatime"];
                         };
                         "/nix" = {
                           mountpoint = "/nix";
-                          mountOptions = ["subvol=@nix" "compress=zstd" "noatime"];
+                          mountOptions = ["subvol=nix" "compress=zstd" "noatime"];
                         };
                         "/log" = {
                           mountpoint = "/var/log";
-                          mountOptions = ["subvol=@log" "compress=zstd" "noatime"];
+                          mountOptions = ["subvol=log" "compress=zstd" "noatime"];
                         };
                         "/swap" = mkIf (cfg.swap-size != null) {
                           mountpoint = "/swap";
@@ -157,7 +157,7 @@ in {
                     #name = "crypt-${name}${cfg.name-suffix}";
                     content = {
                       type = "btrfs";
-                      #extraArgs = ["-L" "${name}${cfg.name-suffix}" "-f"];
+                      extraArgs = ["-L" "${name}${cfg.name-suffix}" "-f"];
                       subvolumes = {
                         "/${name}" = {
                           mountpoint = "/disk-${name}";
@@ -176,6 +176,6 @@ in {
     };
     fileSystems."/var/log".neededForBoot = true;
     # needed so that the non-boot disks are also decrypted
-    boot.initrd.luks.reusePassphrases = true;
+    # boot.initrd.luks.reusePassphrases = true;
   };
 }

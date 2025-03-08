@@ -79,39 +79,52 @@ in {
         systemd.enable = true;
         xwayland.enable = true;
         settings = {
+          "$mainMod" = "SUPER"; 
           exec-once =
             (
               if cfg.gnome-keyring.enable
               then ["${pkgs.polkit_gnome}/libexec/polkit-gnome-authentication-agent-1"]
               else []
-            )
-            ++ [
-              "${pkgs.swww}/bin/swww-daemon"
-              "${getExe pkgs.nextcloud-client}"
-            ];
+            );
+            # ++ [
+            #   "${pkgs.swww}/bin/swww-daemon"
+            #   "${getExe pkgs.nextcloud-client}"
+            # ];
+            
           monitor =
             map (
               m: "${m.device},${toString m.resolution.x}x${toString m.resolution.y}@${toString m.refresh_rate},${toString m.position.x}x${toString m.position.y},${toString m.scale},transform,${toString m.transform}"
             )
             monitors; #TODO: default value
+
           input = {
-            kb_layout = "us";
-            kb_variant = "altgr-intl";
-            kb_options = "compose:ALT_R";
-            sensitivity = 0;
+            kb_layout = "ch,de,us";
+            kb_variant = ",,";
+            kb_options = "grp:rctrl_rshift_toggle, caps:escape";
             accel_profile = "flat";
             force_no_accel = true;
+
             repeat_rate = 50;
             repeat_delay = 200;
+
+            follow_mouse = true;
+            sensitivity = 0.4;
+            
+            touchpad = {
+              disable_while_typing = true;
+              natural_scroll = true;
+              };
           };
+
           general = {
-            gaps_in = 2;
-            gaps_out = 1;
+            gaps_in = 5;
+            gaps_out = 5;
             border_size = 1;
-            # "col.active_border" = "rgba(33ccffee) rgba(00ff99ee) 45deg";
-            # "col.inactive_border" = "rgba(595959aa)";
+            "col.active_border" = "rgba(33ccffee) rgba(00ff99ee) 45deg";
+            "col.inactive_border" = "rgba(595959aa)";
             layout = "dwindle";
           };
+
           cursor.no_hardware_cursors = true;
           decoration.rounding = 5;
           misc.disable_hyprland_logo = true;
@@ -130,9 +143,11 @@ in {
               "windows, 1, 7, myBezier"
             ];
           };
+
           xwayland = {
             force_zero_scaling = true;
           };
+
           gestures.workspace_swipe = true;
           debug.enable_stdout_logs = true;
           debug.disable_logs = true;
@@ -140,92 +155,133 @@ in {
             "float,title:bluetuith"
             "float,title:nmtui"
           ];
-          # render.explicit_sync = 0; # TODO: Remove this and fix Hyprland
+
           bind = [
-            # Example binds, see https://wiki.hyprland.org/Configuring/Binds/ for more
-            "SUPER, RETURN, exec, footclient"
-            "SUPER SHIFT, RETURN, exec, rofi -show drun -show-icons"
-            "SUPER SHIFT, Q, killactive,"
-            "SUPER, B, exec, footclient --title=bluetuith ${pkgs.bluetuith}/bin/bluetuith"
-            "SUPER, N, exec, footclient --title=nmtui ${pkgs.networkmanager}/bin/nmtui"
-            "SUPER, A, exec, ${pkgs.ani-cli-advanced}/bin/ani-cli-advanced"
-            "SUPER SHIFT, A, exec, ani-cli --rofi -c"
-            "SUPER, f, fullscreen"
-            "SUPER, E, exec, nautilus --new-window "
-            "SUPER, V, togglefloating, "
-            "SUPER, P, pseudo, # dwindle"
-            "SUPER, S, togglesplit, # dwindle"
-            ",PRINT, exec, ${getExe pkgs.satty} -f \"$(${getExe pkgs.grimblast} copysave area $(mktemp --suffix .png))\" -o ~/Pictures/Screenshots/screenshot-annotated-$(date -Iminutes).png"
+            "$mainMod, RETURN, exec, footclient"
+            "$mainMod, C, killactive"
+            "$mainMod, SPACE, fullscreen, 0"
+            # "$mainMod, M, exec, ${pkgs.procps}/bin/pkill walker || ${pkgs.walker}/bin/walker" # open App Menu
+            "$mainMod, M, exec, rofi -show drun -show-icons"
+            "$mainMod, F, togglefloating, active"
+            "$mainMod, S, togglesplit" # swap windows in split
+            "$mainMod, Tab, workspace, m+1" # next workspace
+            "$mainMod SHIFT, Tab, workspace, m-1" # previous workspace
+            "$mainMod CTRL, Tab, workspace, empty" # next empty workspace
+            # "SUPER, B, exec, footclient --title=bluetuith ${pkgs.bluetuith}/bin/bluetuith"
+            # "SUPER, N, exec, footclient --title=nmtui ${pkgs.networkmanager}/bin/nmtui"
 
-            # Move focus with mainMod + arrow keys"
-            "SUPER, h, movefocus, l"
-            "SUPER, l, movefocus, r"
-            "SUPER, k, movefocus, u"
-            "SUPER, j, movefocus, d"
+            # Screenshotting
+            # ",PRINT, exec, ${getExe pkgs.satty} -f \"$(${getExe pkgs.grimblast} copysave area $(mktemp --suffix .png))\" -o ~/Pictures/Screenshots/screenshot-annotated-$(date -Iminutes).png"
+            "$mainMod, S, exec, ${pkgs.grimblast}/bin/grimblast copy area" # only copy
+            "$mainMod SHIFT, S, exec, ${pkgs.grimblast}/bin/grimblast save area - | ${pkgs.satty}/bin/satty -f -" # edit with satty
 
-            # move window to next / previous workspace"
-            "SUPER CTRL, h, movetoworkspace, r-1"
-            "SUPER CTRL, l, movetoworkspace, r+1"
+            # File manager
+            "$mainMod, E, exec, ${pkgs.xfce.thunar}/bin/thunar"
+
+            # Browser
+            "$mainMod, B, exec, ${pkgs.firefox}/bin/firefox"
+
+            # Toggle the three different special workspaces.
+            "$mainMod, T, togglespecialworkspace, scratchpad"
+            "$mainMod, N, togglespecialworkspace, nixos"
+            "$mainMod, V, togglespecialworkspace, browser"
+
+            # Reload hyprland
+            # "$mainMod, R, exec, ${cfg.package}/bin/hyprctl reload"
+
+            # Restart waybar
+            "$mainMod CONTROL, B, exec, ${pkgs.procps}/bin/pkill waybar || ${pkgs.waybar}/bin/waybar"
+          ];
+
+          binde = [
+            # window focus
+            "$mainMod, H, movefocus, l"
+            "$mainMod, J, movefocus, d"
+            "$mainMod, K, movefocus, u"
+            "$mainMod, L, movefocus, r"
+
+            # Move Windows
+            "$mainMod SHIFT, H, movewindow, l"
+            "$mainMod SHIFT, J, movewindow, d"
+            "$mainMod SHIFT, K, movewindow, u"
+            "$mainMod SHIFT, L, movewindow, r"
+
+            # Move floating Windows
+            "$mainMod CTRL, right, moveactive, 50 0"
+            "$mainMod CTRL, left, moveactive, -50 0"
+            "$mainMod CTRL, up, moveactive, 0 -50"
+            "$mainMod CTRL, down, moveactive, 0 50"
+
+            # Move Windows Group
+            "$mainMod ALT, H, movewindoworgroup, l"
+            "$mainMod ALT, J, movewindoworgroup, d"
+            "$mainMod ALT, K, movewindoworgroup, u"
+            "$mainMod ALT, L, movewindoworgroup, r"
+
+            # Resize Windows
+            "$mainMod CTRL, H, resizeactive, -50 0"
+            "$mainMod CTRL, J, resizeactive, 50 0"
+            "$mainMod CTRL, K, resizeactive, 0 -50"
+            "$mainMod CTRL, L, resizeactive, 0 50"
 
             # move to next / previous workspace"
             "SUPER CTRL, j, workspace, r-1"
             "SUPER CTRL, k, workspace, r+1"
 
-            # Switch workspaces with mainMod + [0-9]"
-            "SUPER, 1, workspace, 1"
-            "SUPER, 2, workspace, 2"
-            "SUPER, 3, workspace, 3"
-            "SUPER, 4, workspace, 4"
-            "SUPER, 5, workspace, 5"
-            "SUPER, 6, workspace, 6"
-            "SUPER, 7, workspace, 7"
-            "SUPER, 8, workspace, 8"
-            "SUPER, 9, workspace, 9"
-            "SUPER, 0, workspace, 10"
+            # move window to next / previous workspace"
+            "SUPER CTRL, h, movetoworkspace, r-1"
+            "SUPER CTRL, l, movetoworkspace, r+1"
+            ];
 
-            # Move active window to a workspace with mainMod + SHIFT + [0-9]"
-            "SUPER SHIFT, 1, movetoworkspace, 1"
-            "SUPER SHIFT, 2, movetoworkspace, 2"
-            "SUPER SHIFT, 3, movetoworkspace, 3"
-            "SUPER SHIFT, 4, movetoworkspace, 4"
-            "SUPER SHIFT, 5, movetoworkspace, 5"
-            "SUPER SHIFT, 6, movetoworkspace, 6"
-            "SUPER SHIFT, 7, movetoworkspace, 7"
-            "SUPER SHIFT, 8, movetoworkspace, 8"
-            "SUPER SHIFT, 9, movetoworkspace, 9"
-            "SUPER SHIFT, 0, movetoworkspace, 10"
+          # Media controls
+          bindl = let
+            play-pause = "${pkgs.playerctl}/bin/playerctl play-pause";
+            stop = "${pkgs.playerctl}/bin/playerctl stop";
+            prev = "${pkgs.playerctl}/bin/playerctl previous";
+            next = "${pkgs.playerctl}/bin/playerctl next";
+            toggle-audio-mute = "${pkgs.wireplumber}/bin/wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle";
+            toggle-mic-mute = "${pkgs.wireplumber}/bin/wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle";
+            brightness_100 = "${pkgs.brightnessctl}/bin/brightnessctl -q s 100%";
+            brightness_1 = "${pkgs.brightnessctl}/bin/brightnessctl -q s 1%";
+            brightness_50 = "${pkgs.brightnessctl}/bin/brightnessctl -q s 50%";
+          in [
+            ", XF86AudioMedia, exec, ${play-pause}"
+            ", XF86AudioPlay,  exec, ${play-pause}"
+            ", XF86AudioStop,  exec, ${stop}"
+            ", XF86AudioPrev,  exec, ${prev}"
+            ", XF86AudioNext,  exec, ${next}"
+            ", XF86AudioMute,  exec, ${toggle-audio-mute}"
+            ", XF86AudioMicMute,  exec, ${toggle-mic-mute}"
+            "SHIFT, XF86MonBrightnessUP, exec, ${brightness_50}"
+            "SHIFT, XF86MonBrightnessDown, exec, ${brightness_1}"
+            "$mainMod SHIFT, XF86MonBrightnessUP, exec, ${brightness_100}"
+            ];
+      
 
-            "SUPER SHIFT, h, movewindow, l"
-            "SUPER SHIFT, l, movewindow, r"
-            "SUPER SHIFT, k, movewindow, u"
-            "SUPER SHIFT, j, movewindow, d"
-
-            # resize windows
-            "SUPER, -, resizeactive, -30"
-            "SUPER, +, resizeactive, 30"
-
-            # Scroll through existing workspaces with mainMod + scroll"
-            "SUPER, mouse_down, workspace, e+1"
-            "SUPER, mouse_up, workspace, e-1"
-
-            # Move/resize windows with mainMod + LMB/RMB and dragging
-            "SUPER, mouse:272, movewindow"
-            # "bindm = SUPER, mouse:273, resizewindow"
+          # locked + repeat
+          bindle = let
+            volume_up = "${pkgs.wireplumber}/bin/wpctl set-volume -l 1.5 @DEFAULT_AUDIO_SINK@ 5%+";
+            volume_down = "${pkgs.wireplumber}/bin/wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-";
+            brightness_up = "${pkgs.brightnessctl}/bin/brightnessctl set +5%";
+            brightness_down = "${pkgs.brightnessctl}/bin/brightnessctl set 5%-";
+          in [
+            ", XF86AudioRaiseVolume, exec, ${volume_up}"
+            ", XF86AudioLowerVolume, exec, ${volume_down}"
+            ", XF86MonBrightnessUp, exec, ${brightness_up}"
+            ", XF86MonBrightnessDown, exec, ${brightness_down}"
           ];
 
+          # Mouse settings
           bindm = [
-            "Super, mouse:272, movewindow"
-            "Super, mouse:273, resizewindow"
+            "$mainMod SHIFT, Control_L, movewindow"
+            "$mainMod SHIFT, ALT_L, resizewindow"
           ];
-          binde = [
-            ",XF86MonBrightnessUp, exec, brightnessctl set 10%+"
-            ",XF86MonBrightnessDown, exec, brightnessctl set 10%-"
-            # Example volume button that allows press and hold, volume limited to 150%"
-            ",XF86AudioRaiseVolume, exec, wpctl set-volume -l 1.5 @DEFAULT_AUDIO_SINK@ 5%+"
-            # Example volume button that will activate even while an input inhibitor is active"
-            ",XF86AudioLowerVolume, exec, wpctl set-volume -l 1.5 @DEFAULT_AUDIO_SINK@ 5%-"
-            ",XF86AudioMute, exec, wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"
-          ];
+
+          # Some more movement-related settings
+          binds = {
+            pass_mouse_when_bound = false;
+            movefocus_cycles_fullscreen = false;
+          };
           env = [
             "XCURSOR_SIZE,24"
           ];
