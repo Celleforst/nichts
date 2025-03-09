@@ -33,8 +33,7 @@
     system = rec {
       network.hostname = "saturn";
       username = "mk";
-      gitPath = "/flake/nichts2";
-      # nvidia.enable = true;
+      gitPath = "/flake/nichts";
       monitors = [
         {
           name = "Main";
@@ -55,7 +54,7 @@
       disks = {
         auto-partition.enable = false;
         swap-size = "64G";
-        main-disk = "/dev/disk/by-id/nvme-KINGSTON_SNV2S250G_50026B7686A07983";
+        main-disk = "/dev/disk/by-id/nvme-KINGSTON_SNV2S250G_50026B7686A07983_1";
       };
     };
     other.home-manager = {
@@ -63,18 +62,13 @@
       enableDirenv = true;
     };
     programs = {
-      steam.enable = true;
-      steam.gamescope = true;
       firefox.enable = true;
       vesktop.enable = true;
       btop.enable = true;
       mpv.enable = true;
-      schizofox.enable = false;
       obs.enable = true;
-      vivado.enable = false;
       rofi.enable = true;
       zathura.enable = true;
-      i3.enable = false;
       git = {
         enable = true;
         userName = "Marcello Krahforst";

@@ -28,7 +28,5 @@ in {
       isNormalUser = true;
       extraGroups = ["wheel" "adbusers"];
     };
-    # is already done by hardware-configuration.nix
-    # hardware.cpu.${cpu}.updateMicrocode = true;
   };
 }

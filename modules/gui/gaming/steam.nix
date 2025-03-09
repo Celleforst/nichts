@@ -21,7 +21,6 @@ in {
       dedicatedServer.openFirewall = true;
       gamescopeSession.enable = mkIf cfg.gamescope true;
       # set LD_PRELOAD to correctly load everything for steam: see https://github.com/ROCm/ROCm/issues/2934
-      # TODO: check if this is still relevant
       package = pkgs.steam.overrideAttrs (prevAttrs: {
         nativeBuildInputs =
           (prevAttrs.nativeBuildInputs or [])

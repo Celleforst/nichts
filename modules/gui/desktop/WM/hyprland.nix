@@ -60,7 +60,6 @@ in {
       home.packages = with pkgs; [
         bluetuith
         brightnessctl
-        # needed for wayland copy / paste support in neovim
         wl-clipboard
       ];
 
@@ -85,17 +84,17 @@ in {
               if cfg.gnome-keyring.enable
               then ["${pkgs.polkit_gnome}/libexec/polkit-gnome-authentication-agent-1"]
               else []
-            );
-            # ++ [
-            #   "${pkgs.swww}/bin/swww-daemon"
-            #   "${getExe pkgs.nextcloud-client}"
-            # ];
+            )
+            ++ [
+              "${pkgs.swww}/bin/swww-daemon"
+              # "${getExe pkgs.nextcloud-client}"
+            ];
             
           monitor =
             map (
               m: "${m.device},${toString m.resolution.x}x${toString m.resolution.y}@${toString m.refresh_rate},${toString m.position.x}x${toString m.position.y},${toString m.scale},transform,${toString m.transform}"
             )
-            monitors; #TODO: default value
+            monitors;
 
           input = {
             kb_layout = "ch,de,us";
@@ -120,28 +119,50 @@ in {
             gaps_in = 5;
             gaps_out = 5;
             border_size = 1;
-            "col.active_border" = "rgba(33ccffee) rgba(00ff99ee) 45deg";
+            "col.active_border" = "rgba(ffe1ccee) rgba(c89aeaaa) 45deg";
             "col.inactive_border" = "rgba(595959aa)";
             layout = "dwindle";
           };
 
           cursor.no_hardware_cursors = true;
-          decoration.rounding = 5;
+          decoration = {
+            rounding = 4;
+            active_opacity = 1.0;
+            inactive_opacity = 0.9;
+
+            blur = {
+              enabled = true;
+              size = 3;
+              passes = 3;
+              new_optimizations = true;
+              ignore_opacity = true;
+              };
+
+            blurls = [
+              "waybar"
+            ];
+          };
           misc.disable_hyprland_logo = true;
           animations = {
-            enabled = false;
-            # Some default animations, see https://wiki.hyprland.org/Configuring/Animations/ for more
+            enabled = true;
 
-            bezier = ["myBezier, 0.05, 0.9, 0.1, 1.05"];
+            bezier = [
+              "wind, 0.05, 0.9, 0.1, 1.05"
+              "winIn, 0.1, 1.1, 0.1, 1.1"
+              "winOut, 0.3, -0.3, 0.1, 1.1"
+              "liner, 1, 1, 1, 1"
+              ];
 
             animation = [
-              "windowsOut, 1, 7, default, popin 80%"
-              "border, 1, 10, default"
-              "borderangle, 1, 8, default"
-              "fade, 1, 7, default"
-              "workspaces, 1, 6, default"
-              "windows, 1, 7, myBezier"
-            ];
+              "windows, 1, 6, wind, slide"
+              "windowsIn, 1, 6, winIn, slide"
+              "windowsOut, 1, 5, winOut, slide"
+              "windowsMove, 1, 5, wind, slide"
+              "border, 1, 1, liner"
+              "borderangle, 1, 30, liner, loop"
+              "fade, 1, 10, default"
+              "workspaces, 1, 5, wind"
+              ];
           };
 
           xwayland = {
@@ -172,8 +193,8 @@ in {
 
             # Screenshotting
             # ",PRINT, exec, ${getExe pkgs.satty} -f \"$(${getExe pkgs.grimblast} copysave area $(mktemp --suffix .png))\" -o ~/Pictures/Screenshots/screenshot-annotated-$(date -Iminutes).png"
-            "$mainMod, S, exec, ${pkgs.grimblast}/bin/grimblast copy area" # only copy
-            "$mainMod SHIFT, S, exec, ${pkgs.grimblast}/bin/grimblast save area - | ${pkgs.satty}/bin/satty -f -" # edit with satty
+            ", PRINT, exec, ${pkgs.grimblast}/bin/grimblast copy area" # only copy
+            "SHIFT, PRINT, exec, ${pkgs.grimblast}/bin/grimblast save area - | ${pkgs.satty}/bin/satty -f -" # edit with satty
 
             # File manager
             "$mainMod, E, exec, ${pkgs.xfce.thunar}/bin/thunar"

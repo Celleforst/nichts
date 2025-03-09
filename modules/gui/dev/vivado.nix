@@ -18,8 +18,6 @@ in {
 
   config = mkIf cfg.enable {
     environment.systemPackages = with pkgs; [
-      # this propietary software is huge, but I need it for
-      # university
       vivado_pkg
       vivado-desktop-symbol
     ];

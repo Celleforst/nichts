@@ -10,44 +10,50 @@ with lib; let
 in {
   options.modules.WM.waybar.enable = lib.mkEnableOption "waybar";
   config = lib.mkIf cfg.enable {
-    # environment.systemPackages = with pkgs; [waybar];
     home-manager.users.${username} = {
       programs.waybar = {
         enable = true;
         systemd.enable = true;
         settings = {
           main = {
-            height = 10;
+            height = 0;
             layer = "top";
             position = "top";
             modules-left = [
-              # "custom/os-icon"
+              "clock"
               "hyprland/workspaces"
+              "custom/weather"
             ];
             modules-center = [
-              "backlight"
-              "clock#time"
-              "wireplumber"
+              "hyprland/window"
             ];
             modules-right = [
               "tray"
+              "cpu"
+              "memory"
               "network"
               "battery"
+              "microphone"
+              "backlight"
+              "pulseaudio"
             ];
+
             #  Modules
             "custom/os-icon" = {
               format = ""; #NixOS logo
             };
             battery = {
-              interval = 10;
+              interval = 2;
               states = {
-                warning = 30;
+                good = 95;
+                warning = 25;
                 critical = 15;
               };
               format-time = "{H}:{M:02}";
-              format = "{icon}    {capacity}%";
+              format = "{icon}";
               format-charging = " {capacity}%";
               format-charging-full = " {capacity}%";
+              format-alt = "{icon} {capacity}%";
               format-full = "{icon} {capacity}%";
               format-icons = [
                 ""
@@ -58,24 +64,28 @@ in {
               ];
               tooltip = false;
             };
-            "clock#time" = {
+            clock = {
               interval = 10;
-              format = "{:%H:%M}";
-              tooltip = false;
-            };
-            "clock#date" = {
-              interval = 20;
-              format = "{:%d.%m.%Y}";
-              tooltip = false;
+              format = "{:%R :%d.%m}";
+              tooltip-format = "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>";
             };
             memory = {
               interval = 5;
-              format = " {used:0.1f}G/{total:0.1f}G";
+              format = "󰍛 {}%";
               states = {
                 warning = 70;
                 critical = 90;
               };
               tooltip = false;
+            };
+            cpu = {
+              interval = 5;
+              format = " {usage}%"; 
+              tooltip = false;
+              states = {
+                warning = 70;
+                critical = 90;
+              };
             };
             network = {
               interval = 5;
@@ -97,19 +107,15 @@ in {
               tooltip = false;
             };
             "hyprland/window" = {
-              format = "{}";
+              format = "{initialTitle}";
               max-length = 30;
               tooltip = false;
-              rewrite = {
-                "([Aa]lacritty|kitty)" = " $1";
-                "(.*) .{15} Mozilla Firefox" = " $1";
-                "(^Spotify.*)" = " $1";
-              };
             };
             "hyprland/workspaces" = {
               disable-scroll-wraparound = true;
               smooth-scrolling-threshold = 4;
               enable-bar-scroll = true;
+              on-click = "activate";
               format = "{icon}";
               format-icons = {
                 "1" = "Ⅰ";
@@ -126,32 +132,39 @@ in {
                 "12" = "Ⅻ";
               };
             };
-            "pulseaudio/slider" = {
-              min = 0;
-              max = 100;
-              orientation = "horizontal";
-            };
-            pulseaudio = {
-              format = "{icon}  {volume}%";
+            "pulseaudio"= {
+              format = "{icon} {volume}%";
               format-bluetooth = "{icon} {volume}%";
-              format-muted = "";
+              format-muted = "󰸈 Muted";
+              on-click = "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle";
+              on-scroll-up = "wpctl set-volume @DEFAULT_AUDIO_SINK@ 1%+";
+              on-scroll-down = "wpctl set-volume @DEFAULT_AUDIO_SINK@ 1%-";
               format-icons = {
                 headphone = "";
-                hands-free = "";
-                headset = "";
+                hands-free = "󱡏";
+                headset = "󰋎";
                 phone = "";
                 portable = "";
                 car = "";
                 default = [
+                  ""
                   ""
                   ""
                 ];
               };
               scroll-step = 1;
-              on-click = "pactl set-sink-mute @DEFAULT_SINK@ toggle";
               tooltip = false;
             };
-            user = {};
+            "microphone" = {
+              format = "{format-source}";
+              format-source = "󰍬 {volume}%";
+              format-source-muted = "󰍬 Muted";
+              on-click = "pactl set-source-mute @DEFAULT_SOURCE@ toggle";
+              on-scroll-up = "pactl set-source-volume @DEFAULT_SOURCE@ 1%+";
+              on-scroll-down = "pactl set-source-volume @DEFAULT_SOURCE@ 1%-";
+              scroll-step = 1;
+              tooltip = false;
+              };
             temperature = {
               critical-threshold = 90;
               interval = 5;
@@ -166,36 +179,40 @@ in {
               tooltip = false;
             };
             backlight = {
-              format = "{icon} ";
+              format = "{icon} {percent}%";
+              on-click-middle = "brightnessctl set 100%";
+              on-click-right = "brightnessctl set 1%";
+              on-double-click = "brightnessctl set 50%";
+              on-scroll-up = "brightnessctl set 1%+";
+              on-scroll-down = "brightnessctl set 1%-";
               format-icons = [
-                "░"
-                "▁"
-                "▂"
-                "▃"
-                "▄"
-                "▅"
-                "▆"
-                "▇"
-                "█"
+                ""
+                ""
+                ""
+                ""
+                ""
+                ""
+                ""
+                ""
+                ""
+                ""
+                ""
+                ""
+                ""
+                ""
               ];
-            };
-            wireplumber = {
-              format = "{icon}";
-              format-muted = "󰖁";
-              format-icons = [
-                "░"
-                "▁"
-                "▂"
-                "▃"
-                "▄"
-                "▅"
-                "▆"
-                "▇"
-                "█"
-              ];
+              tooltip = false;
             };
             tray = {
-              icon-size = 18;
+              icon-size = 13;
+              spacing = 10;
+            };
+            "custom/weather" = {
+              tooltip = true;
+              format = {};
+              interval = 30;
+              exec = "";
+              return-type = "json";
             };
           };
         };

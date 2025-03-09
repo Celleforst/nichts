@@ -31,7 +31,7 @@ in {
         home = {
           inherit username;
           homeDirectory = "/home/${username}";
-          stateVersion = lib.mkDefault "23.11";
+          stateVersion = lib.mkDefault "24.11";
         };
       };
     };

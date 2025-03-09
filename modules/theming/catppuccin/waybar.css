@@ -13,11 +13,37 @@
 }
 
 #workspaces {
-
   border-radius: 0.5em;
   /* margin: 0.5rem; */
   /* margin: 0.25rem; */
   /* padding: 0 0.5rem 0 0.5rem; */
+  background-color: @surface0;
+  /* font-family: Computer Modern; */
+}
+
+#window {
+  border-radius: 0.5em;
+   /*margin: 0.5rem; */
+   /*margin: 0.25rem; */
+  padding: 0 0.5rem 0 0.5rem; 
+  background-color: @surface0;
+  /* font-family: Computer Modern; */
+}
+
+#microphone {
+  border-radius: 0.5em;
+   /*margin: 0.5rem; */
+   /*margin: 0.25rem; */
+  padding: 0 0.5rem 0 0.5rem; 
+  background-color: @surface0;
+  /* font-family: Computer Modern; */
+}
+
+#cpu {
+  border-radius: 0.5em;
+   /*margin: 0.5rem; */
+   /*margin: 0.25rem; */
+  padding: 0 0.5rem 0 0.5rem; 
   background-color: @surface0;
   /* font-family: Computer Modern; */
 }
@@ -49,23 +75,9 @@
 #network,
 #wireplumber,
 #custom-lock,
+#microphone,
 #workspaces
 #network
-#custom-power {
-  background-color: @surface0;
-  /* padding: 0.5rem 1rem; */
-  /* margin: 0.1rem 0; */
-  /* border-color: @maroon; */ 
-  /* border-style: solid; */
-  border-width: 1px;
-  /* padding: 0 0.5rem 0 0.5rem; */
-  border-radius: 0.4rem;
-  /* margin: 0.25rem 0; */
-  /* margin: 0rem; */
-  /* padding: 0 0.5rem 0 0.5rem; */
-  padding: 0.4em;
-}
-
 #clock {
   color: @blue; 
   border-radius: 0px;
@@ -104,27 +116,11 @@
   /* margin-left: 1rem; */
 }
 
-#wireplumber {
+#speaker {
   color: @green;
   border-radius: 0px 0.4rem 0.4rem 0px;
   /* margin-right: 1rem; */
   border-width: 1px 1px 1px 0px;
-}
-
-#custom-music {
-  color: @mauve;
-  /* border-radius: 1rem; */
-}
-
-#custom-lock {
-    border-radius: 0.4rem 0px 0px 0.4rem;
-    color: @lavender;
-}
-
-#custom-power {
-    /* margin-right: 1rem; */
-    border-radius: 0px 0.4rem 0.4rem 0px;
-    color: @red;
 }
 
 #tray {

@@ -23,7 +23,9 @@ in {
         enable = true;
         server.enable = cfg.server;
         settings = {
-          main.dpi-aware = "yes";
+          main = {
+            dpi-aware = "yes";
+          };
         };
       };
     };
