@@ -35,7 +35,8 @@ in {
               "battery"
               "microphone"
               "backlight"
-              "pulseaudio"
+              "pulseaudio#speaker"
+              "pulseaudio#microphone"
             ];
 
             #  Modules
@@ -66,12 +67,12 @@ in {
             };
             clock = {
               interval = 10;
-              format = "{:%R :%d.%m}";
+              format-alt = "  {:%d.%m.%Y}";
               tooltip-format = "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>";
             };
             memory = {
               interval = 5;
-              format = "󰍛 {}%";
+              format = "󰍛  {}%";
               states = {
                 warning = 70;
                 critical = 90;
@@ -80,7 +81,7 @@ in {
             };
             cpu = {
               interval = 5;
-              format = " {usage}%"; 
+              format = "  {usage}%"; 
               tooltip = false;
               states = {
                 warning = 70;
@@ -132,8 +133,8 @@ in {
                 "12" = "Ⅻ";
               };
             };
-            "pulseaudio"= {
-              format = "{icon} {volume}%";
+            "pulseaudio#speaker"= {
+              format = "{icon}  {volume}%";
               format-bluetooth = "{icon} {volume}%";
               format-muted = "󰸈 Muted";
               on-click = "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle";
@@ -155,16 +156,16 @@ in {
               scroll-step = 1;
               tooltip = false;
             };
-            "microphone" = {
-              format = "{format-source}";
+            "pulseaudio#microphone" = {
+              format = "{format_source}";
               format-source = "󰍬 {volume}%";
-              format-source-muted = "󰍬 Muted";
-              on-click = "pactl set-source-mute @DEFAULT_SOURCE@ toggle";
-              on-scroll-up = "pactl set-source-volume @DEFAULT_SOURCE@ 1%+";
-              on-scroll-down = "pactl set-source-volume @DEFAULT_SOURCE@ 1%-";
+              format-source-muted = "󰍭 Muted";
+              on-click = "wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle";
+              on-scroll-up = "wpctl set-volume @DEFAULT_AUDIO_SOURCE@ 1%-";
+              on-scroll-down = "wpctl set-volume @DEFAULT_AUDIO_SOURCE@ 1%+";
               scroll-step = 1;
               tooltip = false;
-              };
+            };
             temperature = {
               critical-threshold = 90;
               interval = 5;
@@ -179,7 +180,7 @@ in {
               tooltip = false;
             };
             backlight = {
-              format = "{icon} {percent}%";
+              format = "{icon}  {percent}%";
               on-click-middle = "brightnessctl set 100%";
               on-click-right = "brightnessctl set 1%";
               on-double-click = "brightnessctl set 50%";

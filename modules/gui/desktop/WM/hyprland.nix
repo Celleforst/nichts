@@ -211,7 +211,7 @@ in {
             # "$mainMod, R, exec, ${cfg.package}/bin/hyprctl reload"
 
             # Restart waybar
-            "$mainMod CONTROL, B, exec, ${pkgs.procps}/bin/pkill waybar || ${pkgs.waybar}/bin/waybar"
+            "$mainMod CONTROL, B, exec, ${pkgs.procps}/bin/pkill waybar && ${pkgs.waybar}/bin/waybar"
           ];
 
           binde = [
