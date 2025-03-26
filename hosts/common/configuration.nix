@@ -51,6 +51,10 @@ in {
         "terms-of-service-didnt-read" = "jid0-3GUEt1r69sQNSrca5p8kx9Ezc3U@jetpack";
         "multi-account-containers" = "@testpilot-containers";
         "ublock-origin" = "uBlock0@raymondhill.net";
+        "passbolt" = "passbolt@passbolt.com" 
+        "enhancer-for-youtube" = "enhancerforyoutube@maximerf.addons.mozilla.org"
+        # "video-downloader-profession" = "ffext_basicvideoext@startpage24"
+        "vimium-ff" = "{d7742d87-e61d-4b78-b8a1-b469842139fa}"
       };
     };
     theming.theme = "catppuccin";
