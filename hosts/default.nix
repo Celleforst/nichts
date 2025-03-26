@@ -20,18 +20,4 @@ in {
     modules =
       baseModules ++ [./saturn];
   };
-  flocke = lib.nixosSystem {
-    inherit system specialArgs;
-    modules =
-      baseModules
-      ++ [
-        ./flocke
-        inputs.nixos-hardware.nixosModules.framework-13-7040-amd
-      ];
-  };
-  schnee = lib.nixosSystem {
-    inherit system specialArgs;
-    modules =
-      baseModules ++ [./schnee];
-  };
 }

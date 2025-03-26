@@ -30,7 +30,7 @@
     };
     system = rec {
       hostname = "iso";
-      username = "dragyx";
+      username = "mk";
       gitPath = "/home/${username}/repos/nichts";
       wayland = true;
       monitors = [];
@@ -53,7 +53,7 @@
       git = {
         enable = true;
         userName = "Dragyx";
-        userEmail = "66752602+Dragyx@users.noreply.github.com";
+        userEmail = "77944684+Celleforst@users.noreply.github.com";
         defaultBranch = "main";
       };
       starship.enable = true;
