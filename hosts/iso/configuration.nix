@@ -26,7 +26,7 @@
   modules = {
     login = {
       greetd.enable = false;
-      session = "Hyprland";
+      session = "uwsm start -- hyprland.desktop";
     };
     system = rec {
       hostname = "iso";

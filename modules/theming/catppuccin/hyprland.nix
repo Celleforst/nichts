@@ -70,7 +70,7 @@ in {
       hyprlock
     ];
 
-    services.logind.lidSwitch = "suspend";
+    services.logind.settings.Login.HandleLidSwitch = "suspend";
     # hyprland settings
     home-manager.users.${username} = {
       xdg.configFile."hypr/hyprlock.conf".source = "${hyprlock-catppuccin}/.config/hypr/hyprlock.conf";

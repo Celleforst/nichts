@@ -16,7 +16,7 @@ in {
     spotify
     hyprland-protocols
     feh
-    xorg.xrandr
+    xrandr
     wine
     # easyeffects
     nautilus

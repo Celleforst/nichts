@@ -33,5 +33,6 @@ in {
     sops
     ethtool
     xeyes
+    cloudflared
   ];
 }

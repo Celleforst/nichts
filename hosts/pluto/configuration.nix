@@ -22,7 +22,7 @@
     wants = ["nss-lookup.target"];
   };
 
-  services.resolved.fallbackDns = ["2620:fe::fe" "9.9.9.9"];
+  services.resolved.settings.Resolve.FallbackDNS = ["2620:fe::fe" "9.9.9.9"];
 
   systemd.network.wait-online.enable = true;
 

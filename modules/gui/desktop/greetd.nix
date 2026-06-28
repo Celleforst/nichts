@@ -19,14 +19,9 @@ in {
     services.greetd = {
       enable = true;
       settings = {
-        terminal.vt = 2; # set to 2 so the systemd logs don't clutter the ui
+#        terminal.vt = 2; # set to 2 so the systemd logs don't clutter the ui
         default_session = {
-          command = ''
-            ${pkgs.greetd.tuigreet}/bin/tuigreet \
-              -c \"${session}\" \
-              -r 
-              -t --time-format "DD.MM.YYYY"
-              --asteriks'';
+          command = "${pkgs.tuigreet}/bin/tuigreet --cmd '${session}' -r -t --asterisks";
         };
       };
     };

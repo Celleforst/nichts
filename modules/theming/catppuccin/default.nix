@@ -34,15 +34,18 @@ in {
   config = mkIf cfg.enable {
     catppuccin = {
       enable = true;
+      autoEnable = true;
       flavor = cfg.flavor;
     };
     home-manager.users.${username} = {
       catppuccin = {
         enable = true;
+        autoEnable = true;
         flavor = cfg.flavor;
+        hyprland.enable = false;
       };
       imports = [
-        inputs.catppuccin.homeManagerModules.catppuccin
+        inputs.catppuccin.homeModules.catppuccin
       ];
     };
   };

@@ -16,51 +16,65 @@ in {
 
   config = mkIf cfg.enable {
     services.displayManager = {
-      sessionPackages = [pkgs.hyprland]; # pkgs.gnome.gnome-session.sessions ];
+      sessionPackages = [pkgs.hyprland];
       defaultSession = "hyprland";
     };
 
     environment.systemPackages = with pkgs; [
       xwayland
-      swww
       hyprshade
       hyprlock
-      rofi-wayland
+      hyprpaper
+      hyprsunset
+      rofi
       waybar
       lxqt.lxqt-openssh-askpass
       libdrm
       dunst
-      pciutils # lspci is needed by hyprland
+      alacritty
+      nemo
+      pciutils
       grimblast
       satty
+      clipse
+      udiskie
+      networkmanagerapplet
+      blueman
+      playerctl
+      wireplumber
     ];
 
     programs.xwayland.enable = true;
-    programs.hyprland.enable = true;
+    programs.hyprland = {
+      enable = true;
+      withUWSM = true;
+    };
 
     services.gnome.gnome-keyring.enable = cfg.gnome-keyring.enable;
     security.pam.services.login.enableGnomeKeyring = cfg.gnome-keyring.enable;
 
     services.displayManager.sddm.wayland.enable = true;
-    systemd.user.services.polkit-gnome-authentication-agent-1 = mkIf cfg.gnome-keyring.enable {
-      description = "polkit-gnome-authentication-agent-1";
-      wantedBy = ["graphical-session.target"];
-      wants = ["graphical-session.target"];
-      after = ["graphical-session.target"];
-      serviceConfig = {
-        Type = "simple";
-        ExecStart = "${pkgs.polkit_gnome}/libexec/polkit-gnome-authentication-agent-1";
-        Restart = "on-failure";
-        RestartSec = 1;
-        TimeoutStopSec = 10;
-      };
-    };
 
     home-manager.users.${username} = {
+      imports = [
+        ./hyprland/conf/autostart.nix
+        ./hyprland/conf/cursor.nix
+        ./hyprland/conf/keyboard.nix
+        ./hyprland/conf/window.nix
+        ./hyprland/conf/decoration.nix
+        ./hyprland/conf/layout.nix
+        ./hyprland/conf/misc.nix
+        ./hyprland/conf/keybinding.nix
+        ./hyprland/conf/windowrule.nix
+        ./hyprland/conf/animation.nix
+        ./hyprland/conf/env.nix
+      ];
+
       home.packages = with pkgs; [
         bluetuith
         brightnessctl
         wl-clipboard
+        bibata-cursors
       ];
 
       xdg.desktopEntries.hyprlock = {
@@ -70,241 +84,57 @@ in {
 
       services.hypridle = {
         enable = true;
-        settings.before_sleep_cmd = "${getExe pkgs.hyprlock}";
+        settings = {
+          general = {
+            lock_cmd = "${getExe pkgs.hyprlock}";
+            before_sleep_cmd = "loginctl lock-session";
+            after_sleep_cmd = "hyprctl dispatch dpms on";
+            ignore_dbus_inhibit = false;
+            ignore_systemd_inhibit = false;
+          };
+          listener = [
+            {
+              timeout = 30;
+              on-timeout = "pidof hyprlock && hyprctl dispatch dpms off && ${pkgs.brightnessctl}/bin/brightnessctl -sd tpacpi::kbd_backlight set 0";
+              on-resume = "pidof hyprlock && hyprctl dispatch dpms on && ${pkgs.brightnessctl}/bin/brightnessctl -rd tpacpi::kbd_backlight";
+            }
+            {
+              timeout = 150;
+              on-timeout = "${pkgs.brightnessctl}/bin/brightnessctl -s set 10";
+              on-resume = "${pkgs.brightnessctl}/bin/brightnessctl -r";
+            }
+            {
+              timeout = 150;
+              on-timeout = "${pkgs.brightnessctl}/bin/brightnessctl -sd tpacpi::kbd_backlight set 0";
+              on-resume = "${pkgs.brightnessctl}/bin/brightnessctl -rd tpacpi::kbd_backlight";
+            }
+            {
+              timeout = 300;
+              on-timeout = "loginctl lock-session";
+            }
+            {
+              timeout = 330;
+              on-timeout = "hyprctl dispatch dpms off";
+              on-resume = "hyprctl dispatch dpms on";
+            }
+            {
+              timeout = 1000;
+              on-timeout = "systemctl suspend";
+            }
+          ];
+        };
       };
 
       wayland.windowManager.hyprland = {
         enable = true;
+        configType = "hyprlang";
         systemd.enable = true;
         xwayland.enable = true;
         settings = {
           "$mainMod" = "SUPER";
-          exec-once =
-            (
-              if cfg.gnome-keyring.enable
-              then ["${pkgs.polkit_gnome}/libexec/polkit-gnome-authentication-agent-1"]
-              else []
-            )
-            ++ [
-              "${pkgs.swww}/bin/swww-daemon"
-              # "${getExe pkgs.nextcloud-client}"
-            ];
-
-          monitor =
-            map (
-              m: "${m.device},${toString m.resolution.x}x${toString m.resolution.y}@${toString m.refresh_rate},${toString m.position.x}x${toString m.position.y},${toString m.scale},transform,${toString m.transform}"
-            )
-            monitors;
-
-          input = {
-            kb_layout = "ch,de,us";
-            kb_variant = ",,";
-            kb_options = "grp:rctrl_rshift_toggle, caps:escape";
-            accel_profile = "flat";
-            force_no_accel = true;
-
-            repeat_rate = 50;
-            repeat_delay = 200;
-
-            follow_mouse = true;
-            sensitivity = 0.4;
-
-            touchpad = {
-              disable_while_typing = true;
-              natural_scroll = true;
-            };
-          };
-
-          general = {
-            gaps_in = 5;
-            gaps_out = 5;
-            border_size = 1;
-            "col.active_border" = "rgba(ffe1ccee) rgba(c89aeaaa) 45deg";
-            "col.inactive_border" = "rgba(595959aa)";
-            layout = "dwindle";
-          };
-
-          cursor.no_hardware_cursors = true;
-          decoration = {
-            rounding = 4;
-            active_opacity = 1.0;
-            inactive_opacity = 0.9;
-
-            blur = {
-              enabled = true;
-              size = 3;
-              passes = 3;
-              new_optimizations = true;
-              ignore_opacity = true;
-            };
-
-            blurls = [
-              "waybar"
-            ];
-          };
-          misc.disable_hyprland_logo = true;
-          animations = {
-            enabled = true;
-
-            bezier = [
-              "wind, 0.05, 0.9, 0.1, 1.05"
-              "winIn, 0.1, 1.1, 0.1, 1.1"
-              "winOut, 0.3, -0.3, 0.1, 1.1"
-              "liner, 1, 1, 1, 1"
-            ];
-
-            animation = [
-              "windows, 1, 6, wind, slide"
-              "windowsIn, 1, 6, winIn, slide"
-              "windowsOut, 1, 5, winOut, slide"
-              "windowsMove, 1, 5, wind, slide"
-              "border, 1, 1, liner"
-              "borderangle, 1, 30, liner, loop"
-              "fade, 1, 10, default"
-              "workspaces, 1, 5, wind"
-            ];
-          };
-
-          xwayland = {
-            force_zero_scaling = true;
-          };
-
-          gestures.workspace_swipe = true;
-          debug.enable_stdout_logs = true;
-          debug.disable_logs = true;
-          windowrulev2 = [
-            "float,title:bluetuith"
-            "float,title:nmtui"
-          ];
-
-          bind = [
-            "$mainMod, RETURN, exec, footclient"
-            "$mainMod, C, killactive"
-            "$mainMod, SPACE, fullscreen, 0"
-            # "$mainMod, M, exec, ${pkgs.procps}/bin/pkill walker || ${pkgs.walker}/bin/walker" # open App Menu
-            "$mainMod, M, exec, rofi -show drun -show-icons"
-            "$mainMod, F, togglefloating, active"
-            "$mainMod, S, togglesplit" # swap windows in split
-            "$mainMod, Tab, workspace, m+1" # next workspace
-            "$mainMod SHIFT, Tab, workspace, m-1" # previous workspace
-            "$mainMod CTRL, Tab, workspace, empty" # next empty workspace
-            # "SUPER, B, exec, footclient --title=bluetuith ${pkgs.bluetuith}/bin/bluetuith"
-            # "SUPER, N, exec, footclient --title=nmtui ${pkgs.networkmanager}/bin/nmtui"
-
-            # Screenshotting
-            # ",PRINT, exec, ${getExe pkgs.satty} -f \"$(${getExe pkgs.grimblast} copysave area $(mktemp --suffix .png))\" -o ~/Pictures/Screenshots/screenshot-annotated-$(date -Iminutes).png"
-            ", PRINT, exec, ${pkgs.grimblast}/bin/grimblast copy area" # only copy
-            "SHIFT, PRINT, exec, ${pkgs.grimblast}/bin/grimblast save area - | ${pkgs.satty}/bin/satty -f -" # edit with satty
-
-            # File manager
-            "$mainMod, E, exec, ${pkgs.xfce.thunar}/bin/thunar"
-
-            # Browser
-            "$mainMod, B, exec, ${pkgs.firefox}/bin/firefox"
-
-            # Toggle the three different special workspaces.
-            "$mainMod, T, togglespecialworkspace, scratchpad"
-            "$mainMod, N, togglespecialworkspace, nixos"
-            "$mainMod, V, togglespecialworkspace, browser"
-
-            # Reload hyprland
-            # "$mainMod, R, exec, ${cfg.package}/bin/hyprctl reload"
-
-            # Restart waybar
-            "$mainMod CONTROL, B, exec, ${pkgs.procps}/bin/pkill waybar && ${pkgs.waybar}/bin/waybar"
-          ];
-
-          binde = [
-            # window focus
-            "$mainMod, H, movefocus, l"
-            "$mainMod, J, movefocus, d"
-            "$mainMod, K, movefocus, u"
-            "$mainMod, L, movefocus, r"
-
-            # Move Windows
-            "$mainMod SHIFT, H, movewindow, l"
-            "$mainMod SHIFT, J, movewindow, d"
-            "$mainMod SHIFT, K, movewindow, u"
-            "$mainMod SHIFT, L, movewindow, r"
-
-            # Move floating Windows
-            "$mainMod CTRL, right, moveactive, 50 0"
-            "$mainMod CTRL, left, moveactive, -50 0"
-            "$mainMod CTRL, up, moveactive, 0 -50"
-            "$mainMod CTRL, down, moveactive, 0 50"
-
-            # Move Windows Group
-            "$mainMod ALT, H, movewindoworgroup, l"
-            "$mainMod ALT, J, movewindoworgroup, d"
-            "$mainMod ALT, K, movewindoworgroup, u"
-            "$mainMod ALT, L, movewindoworgroup, r"
-
-            # Resize Windows
-            "$mainMod CTRL, H, resizeactive, -50 0"
-            "$mainMod CTRL, J, resizeactive, 50 0"
-            "$mainMod CTRL, K, resizeactive, 0 -50"
-            "$mainMod CTRL, L, resizeactive, 0 50"
-
-            # move to next / previous workspace"
-            "SUPER CTRL, j, workspace, r-1"
-            "SUPER CTRL, k, workspace, r+1"
-
-            # move window to next / previous workspace"
-            "SUPER CTRL, h, movetoworkspace, r-1"
-            "SUPER CTRL, l, movetoworkspace, r+1"
-          ];
-
-          # Media controls
-          bindl = let
-            play-pause = "${pkgs.playerctl}/bin/playerctl play-pause";
-            stop = "${pkgs.playerctl}/bin/playerctl stop";
-            prev = "${pkgs.playerctl}/bin/playerctl previous";
-            next = "${pkgs.playerctl}/bin/playerctl next";
-            toggle-audio-mute = "${pkgs.wireplumber}/bin/wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle";
-            toggle-mic-mute = "${pkgs.wireplumber}/bin/wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle";
-            brightness_100 = "${pkgs.brightnessctl}/bin/brightnessctl -q s 100%";
-            brightness_1 = "${pkgs.brightnessctl}/bin/brightnessctl -q s 1%";
-            brightness_50 = "${pkgs.brightnessctl}/bin/brightnessctl -q s 50%";
-          in [
-            ", XF86AudioMedia, exec, ${play-pause}"
-            ", XF86AudioPlay,  exec, ${play-pause}"
-            ", XF86AudioStop,  exec, ${stop}"
-            ", XF86AudioPrev,  exec, ${prev}"
-            ", XF86AudioNext,  exec, ${next}"
-            ", XF86AudioMute,  exec, ${toggle-audio-mute}"
-            ", XF86AudioMicMute,  exec, ${toggle-mic-mute}"
-            "SHIFT, XF86MonBrightnessUP, exec, ${brightness_50}"
-            "SHIFT, XF86MonBrightnessDown, exec, ${brightness_1}"
-            "$mainMod SHIFT, XF86MonBrightnessUP, exec, ${brightness_100}"
-          ];
-
-          # locked + repeat
-          bindle = let
-            volume_up = "${pkgs.wireplumber}/bin/wpctl set-volume -l 1.5 @DEFAULT_AUDIO_SINK@ 5%+";
-            volume_down = "${pkgs.wireplumber}/bin/wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-";
-            brightness_up = "${pkgs.brightnessctl}/bin/brightnessctl set +5%";
-            brightness_down = "${pkgs.brightnessctl}/bin/brightnessctl set 5%-";
-          in [
-            ", XF86AudioRaiseVolume, exec, ${volume_up}"
-            ", XF86AudioLowerVolume, exec, ${volume_down}"
-            ", XF86MonBrightnessUp, exec, ${brightness_up}"
-            ", XF86MonBrightnessDown, exec, ${brightness_down}"
-          ];
-
-          # Mouse settings
-          bindm = [
-            "$mainMod SHIFT, Control_L, movewindow"
-            "$mainMod SHIFT, ALT_L, resizewindow"
-          ];
-
-          # Some more movement-related settings
-          binds = {
-            pass_mouse_when_bound = false;
-            movefocus_cycles_fullscreen = false;
-          };
-          env = [
-            "XCURSOR_SIZE,24"
-          ];
+          monitor = map (
+            m: "${m.device},${toString m.resolution.x}x${toString m.resolution.y}@${toString m.refresh_rate},${toString m.position.x}x${toString m.position.y},${toString m.scale}"
+          ) monitors;
         };
       };
     };

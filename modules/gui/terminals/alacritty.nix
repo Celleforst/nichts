@@ -1,7 +1,6 @@
 {
   config,
   lib,
-  inputs,
   pkgs,
   ...
 }:
@@ -14,7 +13,7 @@ in {
     opacity = mkOption {
       description = "opacity of alacritty";
       type = types.number;
-      default = 1.0;
+      default = 0.7;
     };
     blur = mkOption {
       description = "blur of alacritty";
@@ -25,13 +24,35 @@ in {
 
   config = mkIf cfg.enable {
     home-manager.users.${username} = {
-      programs.alacritty.enable = true;
+      home.packages = [ pkgs.nerd-fonts.jetbrains-mono ];
 
+      programs.alacritty.enable = true;
       programs.alacritty.settings = {
+        font = {
+          size = 12.0;
+          normal = {
+            family = "JetBrainsMono Nerd Font";
+            style = "Regular";
+          };
+        };
         window = {
           blur = cfg.blur;
           opacity = cfg.opacity;
+          padding = { x = 15; y = 15; };
         };
+        selection.save_to_clipboard = true;
+        cursor.style = {
+          shape = "Beam";
+          blinking = "Always";
+        };
+        keyboard.bindings = [
+          {
+            key = "Return";
+            mods = "Shift";
+            # sends ESC + CR, useful in terminal multiplexers
+            chars = builtins.fromJSON "\"\\u001B\\r\"";
+          }
+        ];
       };
     };
   };

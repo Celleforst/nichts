@@ -12,37 +12,31 @@
     (modulesPath + "/installer/scan/not-detected.nix")
   ];
 
-  boot.initrd.availableKernelModules = ["xhci_pci" "ahci" "nvme" "rtsx_pci_sdmmc"];
+  boot.initrd.availableKernelModules = ["xhci_pci" "ahci" "nvme" "rtsx_pci_sdmmc" "btrfs"];
+  boot.supportedFilesystems = [ "btrfs" ];
   boot.initrd.kernelModules = [];
   boot.kernelModules = [];
   boot.extraModulePackages = [];
 
   fileSystems."/" = {
-    device = "/dev/disk/by-uuid/6593bb5d-4d1e-47f3-8ffa-23240a41aeae";
-    fsType = "btrfs";
-    options = ["subvol=root"];
-  };
+  device = "/dev/disk/by-uuid/7c44c06e-d6d4-4da7-b9f9-ffe7e2ac923c";
+  fsType = "btrfs";
+  options = ["subvol=@" "compress=zstd" "noatime"];
+};
 
-  fileSystems."/nix" = {
-    device = "/dev/disk/by-uuid/6593bb5d-4d1e-47f3-8ffa-23240a41aeae";
-    fsType = "btrfs";
-    options = ["subvol=nix"];
-  };
+fileSystems."/nix" = {
+  device = "/dev/disk/by-uuid/7c44c06e-d6d4-4da7-b9f9-ffe7e2ac923c";
+  fsType = "btrfs";
+  options = ["subvol=@nix" "compress=zstd" "noatime"];
+};
 
-  fileSystems."/var/log" = {
-    device = "/dev/disk/by-uuid/6593bb5d-4d1e-47f3-8ffa-23240a41aeae";
-    fsType = "btrfs";
-    options = ["subvol=log"];
-  };
-
-  fileSystems."/home" = {
-    device = "/dev/disk/by-uuid/6593bb5d-4d1e-47f3-8ffa-23240a41aeae";
-    fsType = "btrfs";
-    options = ["subvol=home"];
-  };
-
+fileSystems."/home" = {
+  device = "/dev/disk/by-uuid/7c44c06e-d6d4-4da7-b9f9-ffe7e2ac923c";
+  fsType = "btrfs";
+  options = ["subvol=@home" "compress=zstd" "noatime"];
+};
   fileSystems."/boot" = {
-    device = "/dev/disk/by-uuid/47F5-8A91";
+    device = "/dev/disk/by-uuid/4390-C20C";
     fsType = "vfat";
     options = ["fmask=0022" "dmask=0022"];
   };

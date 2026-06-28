@@ -16,7 +16,7 @@ in {
     spotify
     hyprland-protocols
     feh
-    xorg.xrandr
+    xrandr
     wine
     # easyeffects
     nautilus
@@ -28,5 +28,8 @@ in {
     hunspell
     hunspellDicts.en_US
     hunspellDicts.de_AT
+    alacritty
+    tuigreet
+    claude-code
   ];
 }

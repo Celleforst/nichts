@@ -14,6 +14,10 @@ in {
   config = mkIf cfg.enable {
     home-manager.users.${username} = {
       imports = [inputs.nixvim.homeManagerModules.nixvim];
+      programs.neovim = {
+        withRuby = false;
+        withPython3 = false;
+      };
       programs.nixvim = {
         enable = true;
         enableMan = true;
