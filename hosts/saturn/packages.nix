@@ -31,5 +31,12 @@ in {
     alacritty
     tuigreet
     claude-code
+    ansible
+    gnumake
+    gcc
+    binutils
+    pkg-config
+    autoconf
+    automake
   ];
 }

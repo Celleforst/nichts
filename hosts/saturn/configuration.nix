@@ -70,8 +70,10 @@ programs.gnupg.agent = {
       enable = true;
       enableDirenv = true;
     };
+    services.docker.enable = true;
     programs = {
       #firefox.enable = true;
+      vscode.enable = true;
       vesktop.enable = true;
       btop.enable = true;
       mpv.enable = true;
