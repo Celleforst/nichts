@@ -81,7 +81,7 @@ in {
             };
             cpu = {
               interval = 5;
-              format = "  {usage}%"; 
+              format = "  {usage}%";
               tooltip = false;
               states = {
                 warning = 70;
@@ -133,7 +133,7 @@ in {
                 "12" = "Ⅻ";
               };
             };
-            "pulseaudio#speaker"= {
+            "pulseaudio#speaker" = {
               format = "{icon}  {volume}%";
               format-bluetooth = "{icon} {volume}%";
               format-muted = "󰸈 Muted";

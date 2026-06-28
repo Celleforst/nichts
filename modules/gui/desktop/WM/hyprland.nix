@@ -78,7 +78,7 @@ in {
         systemd.enable = true;
         xwayland.enable = true;
         settings = {
-          "$mainMod" = "SUPER"; 
+          "$mainMod" = "SUPER";
           exec-once =
             (
               if cfg.gnome-keyring.enable
@@ -89,7 +89,7 @@ in {
               "${pkgs.swww}/bin/swww-daemon"
               # "${getExe pkgs.nextcloud-client}"
             ];
-            
+
           monitor =
             map (
               m: "${m.device},${toString m.resolution.x}x${toString m.resolution.y}@${toString m.refresh_rate},${toString m.position.x}x${toString m.position.y},${toString m.scale},transform,${toString m.transform}"
@@ -108,11 +108,11 @@ in {
 
             follow_mouse = true;
             sensitivity = 0.4;
-            
+
             touchpad = {
               disable_while_typing = true;
               natural_scroll = true;
-              };
+            };
           };
 
           general = {
@@ -136,7 +136,7 @@ in {
               passes = 3;
               new_optimizations = true;
               ignore_opacity = true;
-              };
+            };
 
             blurls = [
               "waybar"
@@ -151,7 +151,7 @@ in {
               "winIn, 0.1, 1.1, 0.1, 1.1"
               "winOut, 0.3, -0.3, 0.1, 1.1"
               "liner, 1, 1, 1, 1"
-              ];
+            ];
 
             animation = [
               "windows, 1, 6, wind, slide"
@@ -162,7 +162,7 @@ in {
               "borderangle, 1, 30, liner, loop"
               "fade, 1, 10, default"
               "workspaces, 1, 5, wind"
-              ];
+            ];
           };
 
           xwayland = {
@@ -252,7 +252,7 @@ in {
             # move window to next / previous workspace"
             "SUPER CTRL, h, movetoworkspace, r-1"
             "SUPER CTRL, l, movetoworkspace, r+1"
-            ];
+          ];
 
           # Media controls
           bindl = let
@@ -276,8 +276,7 @@ in {
             "SHIFT, XF86MonBrightnessUP, exec, ${brightness_50}"
             "SHIFT, XF86MonBrightnessDown, exec, ${brightness_1}"
             "$mainMod SHIFT, XF86MonBrightnessUP, exec, ${brightness_100}"
-            ];
-      
+          ];
 
           # locked + repeat
           bindle = let

@@ -28,5 +28,6 @@ in {
     hunspell
     hunspellDicts.en_US
     hunspellDicts.de_AT
+    cloudflared
   ];
 }

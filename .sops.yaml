@@ -1,0 +1,10 @@
+keys:
+  - &mk age1r5xsjytnj2awrxj4twuytt7222s4vr5a04nmddnh48e0shwk2ctsmms5z8
+  - &pluto age1cuxtrrggc8uedh55uzqjap7nypwsu5qkt7t6kkpas0wh52cxzdkqmm97vk
+
+creation_rules:
+  - path_regex: secrets/.*\.yaml$
+    key_groups:
+      - age:
+          - *mk
+          - *pluto

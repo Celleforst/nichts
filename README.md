@@ -2,6 +2,43 @@
 
 My personal collection of NixOS configuration files
 
+## SOPS Setup
+
+Secrets are managed with [sops-nix](https://github.com/Mic92/sops-nix) using age keys derived from SSH host keys.
+
+### Setting up SOPS on your workstation (to edit secrets)
+
+```bash
+sudo ssh-to-age -private-key < /etc/ssh/ssh_host_ed25519_key > ~/.config/sops/age/keys.txt
+```
+
+### Adding a new host
+
+1. **Deploy a minimal config first** (without services that require secrets)
+
+2. **Get the new host's age public key:**
+   ```bash
+   ssh newhost "cat /etc/ssh/ssh_host_ed25519_key.pub" | ssh-to-age
+   ```
+
+3. **Add it to `.sops.yaml`:**
+   ```yaml
+   keys:
+     - &newhost age1abc123...
+   creation_rules:
+     - path_regex: secrets/.*\.yaml$
+       key_groups:
+         - age:
+             - *newhost
+   ```
+
+4. **Re-encrypt secrets for the new host:**
+   ```bash
+   sops updatekeys secrets/secrets.yaml
+   ```
+
+5. **Deploy the full config** — the host can now decrypt secrets using its SSH host key.
+
 ## TODO
 
 ## Project Structure

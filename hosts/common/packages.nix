@@ -25,6 +25,13 @@ in {
     nix-index
     tldr
     parted
+    dig
     alejandra # nix formatter
+    smartmontools
+    tmux
+    lsof
+    sops
+    ethtool
+    xeyes
   ];
 }

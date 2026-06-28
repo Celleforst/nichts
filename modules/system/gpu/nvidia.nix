@@ -16,6 +16,8 @@ in {
       enable32Bit = true;
     };
 
+    boot.initrd.kernelModules = ["nvidia" "i915" "nvidia_modeset" "nvidia_uvm" "nvidia_drm"];
+
     environment.systemPackages = [
       pkgs.egl-wayland
     ];
@@ -25,7 +27,7 @@ in {
       package = config.boot.kernelPackages.nvidiaPackages.beta;
       powerManagement.enable = true;
       powerManagement.finegrained = false;
-      nvidiaSettings = false;
+      nvidiaSettings = true;
     };
 
     environment.sessionVariables = lib.mkIf config.modules.WM.hyprland.enable {

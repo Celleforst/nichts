@@ -13,6 +13,10 @@
     # nixpkgs-small receives pull requests faster
     nixpkgs-small.url = "github:NixOS/nixpkgs/nixos-unstable-small";
 
+    sops-nix = {
+      url = "github:Mic92/sops-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     home-manager = {
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
