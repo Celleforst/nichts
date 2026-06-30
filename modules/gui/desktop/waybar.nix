@@ -55,7 +55,7 @@ in {
               format-charging = " {capacity}%";
               format-charging-full = " {capacity}%";
               format-alt = "{icon} {capacity}%";
-              format-full = "{icon} {capacity}%";
+              format-full = "{icon}";
               format-icons = [
                 ""
                 ""
@@ -216,7 +216,58 @@ in {
               return-type = "json";
             };
           };
+
+          # Transparent overlay bar shown on top of fullscreen apps when battery is critical
+          battery-warning = {
+            layer = "overlay";
+            position = "bottom";
+            height = 30;
+            passthrough = true;
+            exclusive = false;
+            modules-center = ["battery"];
+            battery = {
+              interval = 5;
+              states.critical = 10;
+              format = "";
+              format-critical = "⚠  BATTERY CRITICAL — {capacity}%  ⚠";
+              tooltip = false;
+            };
+          };
         };
+
+        style = ''
+          @keyframes blink {
+              to { color: transparent; }
+          }
+
+          #battery.critical:not(.charging) {
+              color: #ff4444;
+              animation-name: blink;
+              animation-duration: 0.75s;
+              animation-timing-function: linear;
+              animation-iteration-count: infinite;
+              animation-direction: alternate;
+          }
+
+          /* overlay bar */
+          window#waybar.bottom {
+              background-color: transparent;
+          }
+
+          window#waybar.bottom #battery {
+              background-color: transparent;
+              color: transparent;
+          }
+
+          window#waybar.bottom #battery.critical {
+              background-color: #cc0000;
+              color: #ffffff;
+              font-weight: bold;
+              font-size: 13px;
+              padding: 4px 20px;
+              border-radius: 8px 8px 0 0;
+          }
+        '';
       };
     };
   };
