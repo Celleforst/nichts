@@ -62,5 +62,10 @@ in {
 
   services.openssh.settings.PasswordAuthentication = lib.mkDefault false;
 
+  services.avahi = {
+    enable = lib.mkDefault true;
+    nssmdns4 = lib.mkDefault true;
+  };
+
   time.timeZone = "Europe/Zurich";
 }
