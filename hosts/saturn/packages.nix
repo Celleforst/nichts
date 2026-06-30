@@ -94,8 +94,8 @@ in {
     slack
     remmina
     pre-commit
-    # bambu-studio
-    # orca-slicer
-    # prusa-slicer
+    bambu-studio
+    orca-slicer
+    prusa-slicer
   ];
 }

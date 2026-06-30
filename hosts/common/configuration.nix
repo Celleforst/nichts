@@ -60,5 +60,7 @@ in {
     theming.theme = "catppuccin";
   };
 
+  services.openssh.settings.PasswordAuthentication = lib.mkDefault false;
+
   time.timeZone = "Europe/Zurich";
 }

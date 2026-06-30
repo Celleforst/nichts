@@ -8,7 +8,7 @@
 
       buildMachines = [
         {
-          hostName = "server-mk.local";      # hostname or IP
+          hostName = "192.168.1.114";
           systems = ["x86_64-linux" "aarch64-linux"];
           sshUser = "nix-remote-builder";        # user on the remote with nix trusted-users
           sshKey = "/etc/nix/builder-key";       # private key readable by the nix daemon (root)
@@ -18,9 +18,14 @@
         }
       ];
 
-      extraOptions = lib.mkDefault ''
-        fallback = true;
-      '';
+      settings.fallback = lib.mkDefault true;
     };
+
+    programs.ssh.extraConfig = ''
+      Host 192.168.1.114
+        User nix-remote-builder
+        IdentityFile /etc/nix/builder-key
+        StrictHostKeyChecking accept-new
+    '';
   };
 }
