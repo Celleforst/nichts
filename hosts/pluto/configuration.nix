@@ -351,6 +351,8 @@ hardware.uinput.enable = true;
     };
   };
 
+	   nichts.build-host.enable = true;
+
   services.nginx = {
     enable = true;
     recommendedProxySettings = true;
