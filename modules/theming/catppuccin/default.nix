@@ -35,13 +35,13 @@ in {
     catppuccin = {
       enable = true;
       autoEnable = true;
-      flavor = cfg.flavor;
+      inherit (cfg) flavor;
     };
     home-manager.users.${username} = {
       catppuccin = {
         enable = true;
         autoEnable = true;
-        flavor = cfg.flavor;
+        inherit (cfg) flavor;
         hyprland.enable = false;
       };
       imports = [

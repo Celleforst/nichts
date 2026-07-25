@@ -145,7 +145,7 @@ in {
         // lib.mapAttrs (
           name: device: {
             type = "disk";
-            device = device;
+            inherit device;
             content = {
               type = "gpt";
               partitions = {

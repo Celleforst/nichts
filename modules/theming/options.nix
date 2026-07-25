@@ -9,13 +9,14 @@ with lib; let
 in {
   config = {
     modules.theming.themes.catppuccin.enable = cfg.theme == "catppuccin";
+    modules.theming.themes.stylix.enable = cfg.theme == "stylix";
   };
   options = {
     modules.theming = {
       theme = mkOption {
         type = with types;
           nullOr (
-            enum ["catppuccin"]
+            enum ["catppuccin" "stylix"]
           );
         default = null;
         example = "catppuccin";
@@ -23,6 +24,7 @@ in {
       };
       themes = {
         catppuccin.enable = mkEnableOption "catppuccin";
+        stylix.enable = mkEnableOption "stylix";
       };
     };
   };

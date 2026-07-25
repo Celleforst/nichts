@@ -30,7 +30,7 @@ in {
         default = "alanpeabody";
       };
       plugins = mkOption {
-        type = types.listOf (types.str);
+        type = types.listOf types.str;
         description = "oh-my-zsh plugins (like git)";
         default = ["git"];
       };

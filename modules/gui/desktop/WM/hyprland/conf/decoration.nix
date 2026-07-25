@@ -1,4 +1,4 @@
-{...}: {
+_: {
   wayland.windowManager.hyprland.settings.decoration = {
     rounding = 4;
     active_opacity = 1.0;

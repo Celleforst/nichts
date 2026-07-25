@@ -1,4 +1,4 @@
-{...}: {
+_: {
   wayland.windowManager.hyprland.settings.windowrule = [
     "tile 1, match:title ^(firefox)$"
     "float 1, match:title ^(pavucontrol)$"

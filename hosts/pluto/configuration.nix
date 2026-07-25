@@ -40,6 +40,7 @@
   };
 
   modules = {
+    services.homepage.enable = true;
     system = rec {
       network.hostname = "server-mk";
       username = "mk";
@@ -65,25 +66,25 @@
   boot.initrd.kernelModules = ["nvidia" "i915" "nvidia_modeset" "nvidia_uvm" "nvidia_drm"];
   services.xserver = {
     enable = true;
-displayManager.lightdm = {
+    displayManager.lightdm = {
       enable = true;
     };
     displayManager.autoLogin = {
       enable = true;
       user = "mk";
     };
-    videoDrivers = [ "nvidia" ];
-deviceSection = ''
-      Option "ConnectedMonitor" "DP-5"
-      Option "CustomEDID"
-  "DP-5:/etc/X11/edid.bin"
-      Option "UseEdid" "TRUE"
-      Option
-  "AllowEmptyInitialConfiguration" "yes"
+    videoDrivers = ["nvidia"];
+    deviceSection = ''
+          Option "ConnectedMonitor" "DP-5"
+          Option "CustomEDID"
+      "DP-5:/etc/X11/edid.bin"
+          Option "UseEdid" "TRUE"
+          Option
+      "AllowEmptyInitialConfiguration" "yes"
     '';
-};
-services.displayManager.defaultSession ="none+openbox";
-services.xserver.windowManager.openbox.enable = true;
+  };
+  services.displayManager.defaultSession = "none+openbox";
+  services.xserver.windowManager.openbox.enable = true;
 
   hardware.nvidia = {
     # Modesetting is required for most modern Wayland compositors (e.g., Hyprland, Sway).
@@ -144,31 +145,31 @@ services.xserver.windowManager.openbox.enable = true;
       useDHCP = true;
     };
   };
-programs.steam = {
-  enable = true;
-  remotePlay.openFirewall = false; # Open ports in the firewall for Steam Remote Play
-};
+  programs.steam = {
+    enable = true;
+    remotePlay.openFirewall = false; # Open ports in the firewall for Steam Remote Play
+  };
 
-environment.etc."X11/edid.bin".source = /home/mk/edid.bin;
- services.sunshine = {
+  environment.etc."X11/edid.bin".source = /home/mk/edid.bin;
+  services.sunshine = {
     enable = true;
     autoStart = true;
-    capSysAdmin = true;  
+    capSysAdmin = true;
     openFirewall = true;
   };
-environment.systemPackages = [
+  environment.systemPackages = [
     (pkgs.writeShellScriptBin "steam-bigpicture" ''
       export DISPLAY=:0
       export XAUTHORITY=/home/mk/.Xauthority
       exec ${pkgs.steam}/bin/steam steam://open/bigpicture
     '')
   ];
-services.sunshine.package = pkgs.sunshine.override {
+  services.sunshine.package = pkgs.sunshine.override {
     cudaSupport = true;
-    cudaPackages = pkgs.cudaPackages;
+    inherit (pkgs) cudaPackages;
   };
-# Enables the uinput kernel module and creates the uinput group
-hardware.uinput.enable = true;
+  # Enables the uinput kernel module and creates the uinput group
+  hardware.uinput.enable = true;
 
   services.avahi = {
     enable = true;
@@ -351,7 +352,7 @@ hardware.uinput.enable = true;
     };
   };
 
-	   nichts.build-host.enable = true;
+  nichts.build-host.enable = true;
 
   services.nginx = {
     enable = true;
@@ -388,14 +389,14 @@ hardware.uinput.enable = true;
   };
 
   services.opencloud = {
-  	enable = true;
+    enable = true;
     url = "https://opencloud.012204.xyz";
-	environment = {
-PROXY_TLS = "false";
-OC_INSECURE = "true";
+    environment = {
+      PROXY_TLS = "false";
+      OC_INSECURE = "true";
     };
-stateDir = "/data/opencloud";
-  	port = 8081;
+    stateDir = "/data/opencloud";
+    port = 8081;
     environmentFile = config.sops.templates."opencloud.env".path;
   };
 

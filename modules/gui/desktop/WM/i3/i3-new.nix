@@ -123,9 +123,7 @@ in {
             }
           ];
           startup =
-            [
-            ]
-            ++ builtins.map (
+            builtins.map (
               m: {
                 always = true;
                 command = ''                  xrandr --output "${m.device}" \

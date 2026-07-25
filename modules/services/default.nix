@@ -5,5 +5,6 @@ _: {
     ./firewall.nix
     ./satpaper.nix
     ./docker.nix
+    ./homepage.nix
   ];
 }

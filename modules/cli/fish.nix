@@ -56,6 +56,8 @@ in {
         ];
         shellAbbrs = mkMerge [
           {
+            ethz-vpn = "sudo openconnect -u 'mkrahforst@student-net.ethz.ch' --useragent=AnyConnect -g student-net sslvpn.ethz.ch --no-external-auth";
+            fix_hypr = "hyprctl --instance 0 'keyword misc:allow_session_lock_restore 1' && hyprctl --instance 0 'dispatch exec hyprlock'";
             rebuild = "nh os switch";
             update = "nh os switch --update";
             cat = "bat --plain";

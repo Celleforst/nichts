@@ -1,4 +1,4 @@
-{...}: {
+_: {
   wayland.windowManager.hyprland.settings.input = {
     kb_layout = "ch,de,us";
     kb_variant = ",,";

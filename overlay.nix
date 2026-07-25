@@ -1,6 +1,6 @@
 {inputs, ...}: let
   add_nixpkgs_small = self: super: {
-    small = import inputs.nixpkgs-small {system = super.system;};
+    small = import inputs.nixpkgs-small {inherit (super) system;};
   };
 
   add_custom_scripts = self: super: {

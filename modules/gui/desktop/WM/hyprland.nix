@@ -52,6 +52,7 @@ in {
 
     services.gnome.gnome-keyring.enable = cfg.gnome-keyring.enable;
     security.pam.services.login.enableGnomeKeyring = cfg.gnome-keyring.enable;
+    security.pam.services.greetd.enableGnomeKeyring = cfg.gnome-keyring.enable;
 
     services.displayManager.sddm.wayland.enable = true;
 
@@ -132,9 +133,11 @@ in {
         xwayland.enable = true;
         settings = {
           "$mainMod" = "SUPER";
-          monitor = map (
-            m: "${m.device},${toString m.resolution.x}x${toString m.resolution.y}@${toString m.refresh_rate},${toString m.position.x}x${toString m.position.y},${toString m.scale}"
-          ) monitors;
+          monitor =
+            map (
+              m: "${m.device},${toString m.resolution.x}x${toString m.resolution.y}@${toString m.refresh_rate},${toString m.position.x}x${toString m.position.y},${toString m.scale}"
+            )
+            monitors;
         };
       };
     };

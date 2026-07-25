@@ -24,35 +24,30 @@ in {
 
   config = mkIf cfg.enable {
     home-manager.users.${username} = {
-      home.packages = [ pkgs.nerd-fonts.jetbrains-mono ];
+      home.packages = [pkgs.nerd-fonts.jetbrains-mono];
 
       programs.alacritty.enable = true;
       programs.alacritty.settings = {
         font = {
-          size = 12.0;
+          size = mkForce 12;
           normal = {
-            family = "JetBrainsMono Nerd Font";
-            style = "Regular";
+            family = mkForce "JetBrainsMono Nerd Font";
+            style = mkForce "Regular";
           };
         };
-        window = {
-          blur = cfg.blur;
-          opacity = cfg.opacity;
-          padding = { x = 15; y = 15; };
+        window = mkForce {
+          inherit (cfg) blur;
+          inherit (cfg) opacity;
+          padding = {
+            x = 15;
+            y = 15;
+          };
         };
         selection.save_to_clipboard = true;
-        cursor.style = {
+        cursor.style = mkForce {
           shape = "Beam";
           blinking = "Always";
         };
-        keyboard.bindings = [
-          {
-            key = "Return";
-            mods = "Shift";
-            # sends ESC + CR, useful in terminal multiplexers
-            chars = builtins.fromJSON "\"\\u001B\\r\"";
-          }
-        ];
       };
     };
   };

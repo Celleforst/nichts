@@ -1,22 +1,23 @@
 {pkgs, ...}: {
   networking.networkmanager.enable = true;
-  environment.systemPackages = with pkgs; [networkmanager]; # cli tool for managing connections
-    home-manager.users.mk.home.stateVersion = "25.11";
-    services = {
-      pipewire.enable = true;
-    };
+  networking.networkmanager.plugins = [pkgs.networkmanager-openconnect];
+  environment.systemPackages = with pkgs; [networkmanager openconnect]; # cli tool for managing connections
+  home-manager.users.mk.home.stateVersion = "25.11";
+  services = {
+    pipewire.enable = true;
+  };
 
   environment.sessionVariables = {
-  NIXPKGS_ALLOW_UNFREE = "1";
-};
+    NIXPKGS_ALLOW_UNFREE = "1";
+  };
 
   services.gnome.gnome-keyring.enable = true;
-
 
   nichts.remote-builders.enable = true;
 
   users.users.mk.extraGroups = ["dialout"];
   networking.modemmanager.enable = false;
+  systemd.services.NetworkManager-wait-online.enable = false;
 
   boot = {
     kernelParams = [];
@@ -32,10 +33,10 @@
   };
   security.polkit.enable = true;
 
-programs.gnupg.agent = {
-  enable = true;
-  enableSSHSupport = true;  # optional, replaces ssh-agent
-};
+  programs.gnupg.agent = {
+    enable = true;
+    enableSSHSupport = true; # optional, replaces ssh-agent
+  };
 
   home-manager.users."mk".wayland.windowManager.hyprland.settings = {
     workspace = [
@@ -50,6 +51,7 @@ programs.gnupg.agent = {
       session = "uwsm start -- hyprland.desktop";
     };
     system = rec {
+      intel.enable = true;
       network.hostname = "saturn";
       username = "mk";
       gitPath = "/home/mk/nichts";
@@ -83,6 +85,7 @@ programs.gnupg.agent = {
     services.docker.enable = true;
     programs = {
       #firefox.enable = true;
+      alacritty.enable = true;
       vscode.enable = true;
       vesktop.enable = true;
       btop.enable = true;

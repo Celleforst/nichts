@@ -7,9 +7,7 @@
 with lib; let
   username = config.modules.system.username;
   cfg = config.modules.programs.rofi;
-  rofi-pkg = (
-    pkgs.rofi
-  );
+  rofi-pkg = pkgs.rofi;
 in {
   options.modules.programs.rofi.enable = mkEnableOption "rofi";
   options.modules.system.wayland = mkOption {

@@ -1,0 +1,39 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-merge-conflict
+      - id: mixed-line-ending
+        args: [--fix=lf]
+
+  # Nix tools (alejandra, statix, deadnix installed via packages.nix)
+  - repo: local
+    hooks:
+      - id: alejandra
+        name: alejandra (nix formatter)
+        language: system
+        entry: alejandra
+        files: \.nix$
+
+      - id: statix
+        name: statix (nix linter)
+        language: system
+        entry: statix fix
+        files: \.nix$
+        pass_filenames: false
+
+      - id: deadnix
+        name: deadnix (unused nix bindings)
+        language: system
+        entry: deadnix --fail
+        files: \.nix$
+        stages: [manual]
+
+      - id: gitleaks
+        name: gitleaks (secret detection)
+        language: system
+        entry: gitleaks protect --staged
+        pass_filenames: false

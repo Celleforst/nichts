@@ -24,7 +24,7 @@ in {
         server.enable = cfg.server;
         settings = {
           main = {
-            dpi-aware = "yes";
+            dpi-aware = mkForce "yes";
           };
         };
       };

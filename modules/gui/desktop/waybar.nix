@@ -52,10 +52,10 @@ in {
               };
               format-time = "{H}:{M:02}";
               format = "{icon}";
-              format-charging = " {capacity}%";
-              format-charging-full = " {capacity}%";
-              format-alt = "{icon} {capacity}%";
-              format-full = "{icon}";
+              format-charging = "  {capacity}%";
+              format-charging-full = "  {capacity}%";
+              format-alt = "{icon}  {capacity}%";
+              format-full = "{icon} ";
               format-icons = [
                 ""
                 ""

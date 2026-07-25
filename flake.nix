@@ -24,6 +24,11 @@
 
     catppuccin.url = "github:catppuccin/nix";
 
+    stylix = {
+      url = "github:danth/stylix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     nixos-hardware.url = "github:NixOS/nixos-hardware/master";
 
     disko = {

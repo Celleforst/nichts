@@ -11,7 +11,7 @@ in {
     vim
     bat
     neovim
-    eza # exa is unmaintained
+    eza
     hwinfo
     git
     unzip
@@ -27,6 +27,9 @@ in {
     parted
     dig
     alejandra # nix formatter
+    statix # nix linter
+    deadnix # nix dead-code finder
+    gitleaks # secret leak detection
     smartmontools
     tmux
     lsof
@@ -34,5 +37,8 @@ in {
     ethtool
     xeyes
     cloudflared
+    lshw
+    usbutils
+    dua
   ];
 }

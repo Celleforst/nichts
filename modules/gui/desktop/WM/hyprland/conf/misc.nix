@@ -1,8 +1,8 @@
-{...}: {
+_: {
   wayland.windowManager.hyprland.settings.misc = {
     disable_hyprland_logo = true;
     disable_splash_rendering = true;
     mouse_move_enables_dpms = true;
-swallow_regex = "^(Alacritty)$";
+    swallow_regex = "^(Alacritty)$";
   };
 }
