@@ -6,6 +6,7 @@
 }: {
   #services.vscode-server.enable = true;
 
+
   nixpkgs.config.permittedInsecurePackages = [
     "minio-2025-10-15T17-29-55Z"
   ];
@@ -69,22 +70,30 @@
     displayManager.lightdm = {
       enable = true;
     };
-    displayManager.autoLogin = {
+    displayManager = {
+autoLogin = {
       enable = true;
       user = "mk";
     };
-    videoDrivers = ["nvidia"];
-    deviceSection = ''
-          Option "ConnectedMonitor" "DP-5"
-          Option "CustomEDID"
-      "DP-5:/etc/X11/edid.bin"
-          Option "UseEdid" "TRUE"
-          Option
-      "AllowEmptyInitialConfiguration" "yes"
-    '';
-  };
-  services.displayManager.defaultSession = "none+openbox";
-  services.xserver.windowManager.openbox.enable = true;
+ sessionCommands = ''
+xset s off
+  xset -dpms
+  xset s noblank
+  xrandr --output HDMI-0 --same-as DP-2
+'';
+};
+    videoDrivers = [ "nvidia" ];
+};
+
+security.wrappers.bwrap = {
+  source = "${pkgs.bubblewrap}/bin/bwrap";
+  setuid = true;
+  owner = "root";
+  group = "root";
+};
+
+services.displayManager.defaultSession ="none+openbox";
+services.xserver.windowManager.openbox.enable = true;
 
   hardware.nvidia = {
     # Modesetting is required for most modern Wayland compositors (e.g., Hyprland, Sway).
@@ -109,7 +118,10 @@
 
   hardware.graphics = {
     enable = true;
+    enable32Bit = true;
   };
+
+  programs.gamemode.enable = true;
 
   nix.settings.substituters = [
     "https://cache.saumon.network/proxmox-nixos"
@@ -145,13 +157,14 @@
       useDHCP = true;
     };
   };
-  programs.steam = {
-    enable = true;
-    remotePlay.openFirewall = false; # Open ports in the firewall for Steam Remote Play
-  };
+programs.steam = {
+  enable = true;
+  remotePlay.openFirewall = false; # Open ports in the firewall for Steam Remote Play
+  extraCompatPackages = [ pkgs.proton-ge-bin ];
+};
 
-  environment.etc."X11/edid.bin".source = /home/mk/edid.bin;
-  services.sunshine = {
+#environment.etc."X11/edid.bin".source = /home/mk/edid.bin;
+ services.sunshine = {
     enable = true;
     autoStart = true;
     capSysAdmin = true;

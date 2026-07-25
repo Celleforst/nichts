@@ -6,7 +6,10 @@
 }: let
   cfg = config.modules.system.bluetooth;
 in {
-  options.modules.system.bluetooth.enable = lib.mkEnableOption "bluetooth";
+options.modules.system.bluetooth = {
+  enable = lib.mkEnableOption "bluetooth";
+  blueman = lib.mkEnableOption "blueman applet and tray";
+};
 
   config = lib.mkIf cfg.enable {
     hardware.bluetooth = {
@@ -14,7 +17,7 @@ in {
       powerOnBoot = true;
     };
 
-    services.blueman.enable = true;
+    services.blueman.enable = cfg.blueman;
 
     # Bluetooth headset media control buttons
     systemd.user.services.mpris-proxy = {

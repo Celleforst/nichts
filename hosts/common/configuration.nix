@@ -25,7 +25,10 @@ in {
 
   modules = {
     system = {
-      bluetooth.enable = true;
+      bluetooth = { 
+	enable = true;
+	blueman = false;
+	};
       network.enable = true;
       fonts.enable = true;
     };

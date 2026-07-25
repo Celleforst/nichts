@@ -29,5 +29,10 @@ in {
     hunspellDicts.en_US
     hunspellDicts.de_AT
     cloudflared
+    ryubing
+    eden
+    lutris
+    winetricks
+    wine-staging
   ];
 }
