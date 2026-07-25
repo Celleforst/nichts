@@ -19,11 +19,14 @@ in {
     rsync
     # wlr-randr
     wget
+    curl
+    gnumake
     python3
     gcc
     htop
     nix-index
     tldr
+    pre-commit
     parted
     dig
     alejandra # nix formatter
@@ -31,7 +34,16 @@ in {
     deadnix # nix dead-code finder
     gitleaks # secret leak detection
     smartmontools
+    whois
+    socat
+    netcat-gnu
+    binutils
+    iperf3
     tmux
+    traceroute
+    iputils
+    iproute2
+    nmap
     lsof
     sops
     ethtool
@@ -40,5 +52,6 @@ in {
     lshw
     usbutils
     dua
+    feh
   ];
 }
