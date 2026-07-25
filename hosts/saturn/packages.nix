@@ -49,7 +49,6 @@ in {
     libreoffice
     spotify
     hyprland-protocols
-    feh
     xrandr
     wine
     # easyeffects
@@ -66,35 +65,16 @@ in {
     freecad
     claude-code
     ansible
-    nmap
-    net-tools
-    iproute2
-    iputils
-    traceroute
     mtr
     tcpdump
     wireshark
-    iperf3
-    dig
-    whois
-    socat
-    netcat-gnu
-    ethtool
-    lsof
-    curl
-    wget
-    gnumake
-    gcc
-    binutils
     pkg-config
     autoconf
     automake
     foxglove-studio
     qgroundcontrol-v5
     slack
-    slack
     remmina
-    pre-commit
     bambu-studio
     orca-slicer
     prusa-slicer

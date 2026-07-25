@@ -9,25 +9,8 @@
 in {
   environment.systemPackages = with pkgs; [
     (python3.withPackages python-packages)
-    vlc
-    material-icons
-    material-design-icons
-    libreoffice
-    spotify
-    hyprland-protocols
-    feh
     xrandr
     wine
-    # easyeffects
-    nautilus
-    alsa-utils
-    foot
-    gimp
-    imagemagick
-    glow # cli markdown viewer
-    hunspell
-    hunspellDicts.en_US
-    hunspellDicts.de_AT
     cloudflared
     ryubing
     eden
