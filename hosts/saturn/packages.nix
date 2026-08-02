@@ -79,5 +79,8 @@ in {
     orca-slicer
     prusa-slicer
     virt-manager
+    xournalpp
+    jmtpfs
+    rquickshare
   ];
 }

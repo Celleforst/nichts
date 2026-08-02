@@ -7,6 +7,19 @@
 with lib; let
   username = config.modules.system.username;
   cfg = config.modules.WM.waybar;
+  cycleSinks = pkgs.writeShellScript "cycle-audio-sinks" ''
+    sinks=$(wpctl status | awk '/Sinks:/{f=1;next} f && /Sources:/{exit} f && /[0-9]+\./{print}')
+    ids=$(printf '%s\n' "$sinks" | sed -E 's/[^0-9]*([0-9]+)\..*/\1/')
+    current=$(printf '%s\n' "$sinks" | grep '\*' | sed -E 's/[^0-9]*([0-9]+)\..*/\1/')
+    next="" found=0 first=""
+    for id in $ids; do
+      [ -z "$first" ] && first="$id"
+      [ "$found" = "1" ] && { next="$id"; break; }
+      [ "$id" = "$current" ] && found=1
+    done
+    [ -z "$next" ] && next="$first"
+    wpctl set-default "$next"
+  '';
 in {
   options.modules.WM.waybar.enable = lib.mkEnableOption "waybar";
   config = lib.mkIf cfg.enable {
@@ -138,6 +151,7 @@ in {
               format-bluetooth = "{icon} {volume}%";
               format-muted = "󰸈 Muted";
               on-click = "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle";
+              on-click-middle = "${cycleSinks}";
               on-scroll-up = "wpctl set-volume @DEFAULT_AUDIO_SINK@ 1%+";
               on-scroll-down = "wpctl set-volume @DEFAULT_AUDIO_SINK@ 1%-";
               format-icons = {

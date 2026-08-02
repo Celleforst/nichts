@@ -32,6 +32,7 @@
     };
   };
   security.polkit.enable = true;
+  programs.kdeconnect.enable = true;
 
   programs.gnupg.agent = {
     enable = true;
@@ -42,6 +43,16 @@
     workspace = [
       "1,monitor:eDP-1,default:true"
     ];
+  };
+
+  services.udev.extraRules = ''
+    SUBSYSTEM=="usb", ATTRS{idVendor}=="05c6", ATTRS{idProduct}=="9008", MODE="0666", GROUP="plugdev"
+    SUBSYSTEM=="usb", ATTRS{idVendor}=="05c6", ATTRS{idProduct}=="900e", MODE="0666", GROUP="plugdev"
+  '';
+
+  hardware.graphics = {
+    enable = true;
+    extraPackages = [pkgs.intel-media-driver]; # Broadwell (5th gen) and newer
   };
 
   console.keyMap = "sg";

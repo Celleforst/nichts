@@ -42,6 +42,10 @@ in {
       blueman
       playerctl
       wireplumber
+      wf-recorder
+      ffmpeg
+      slurp
+      libnotify
     ];
 
     programs.xwayland.enable = true;
@@ -69,6 +73,7 @@ in {
         ./hyprland/conf/windowrule.nix
         ./hyprland/conf/animation.nix
         ./hyprland/conf/env.nix
+        ./hyprland/conf/scripts.nix
       ];
 
       home.packages = with pkgs; [

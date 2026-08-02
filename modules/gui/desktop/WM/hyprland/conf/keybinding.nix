@@ -62,12 +62,15 @@ in {
 
       # Actions
       ", PRINT, exec, ${screenshot} copy area"
+      "ALT, PRINT, exec, ${screenshot} copysave area"
       "$mainMod SHIFT, S, exec, ${screenshot} save area - | ${satty} -f -"
       "CTRL ALT, L, exec, ${lock}"
-      "$mainMod, L, exec, ${lock}"
+      "$mainMod, Escape, exec, hypr-powermenu"
       "$mainMod, V, exec, ${pkgs.clipse}/bin/clipse"
       "$mainMod CTRL, R, exec, pkill waybar || waybar"
+      "$mainMod CTRL, S, exec, hypr-gif-record"
       "$mainMod SHIFT, R, exec, hyprctl reload"
+      "$mainMod CTRL, apostrophe, exec, hypr-keybindings"
 
       # Workspaces
       "$mainMod, 1, workspace, 1"
@@ -122,7 +125,6 @@ in {
       "$mainMod SHIFT, Control_L, movewindow"
       "$mainMod, ALT_L, resizewindow"
     ];
-
   };
 
   # Submaps need ordered placement in the config file
