@@ -28,6 +28,16 @@
         enable = true;
         device = "nodev";
         efiSupport = true;
+        useOSProber = true;
+        extraEntries = ''
+          menuentry "System Rescue" {
+            insmod part_gpt
+            insmod fat
+            search --no-floppy --set=root --label SYSRESCUE
+            linux /sysresccd/boot/x86_64/vmlinuz archisobasedir=sysresccd archisolabel=SYSRESCUE copytoram
+            initrd /sysresccd/boot/x86_64/sysresccd.img
+          }
+        '';
       };
     };
   };
