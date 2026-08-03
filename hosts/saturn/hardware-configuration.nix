@@ -13,30 +13,30 @@
   ];
 
   boot.initrd.availableKernelModules = ["xhci_pci" "ahci" "nvme" "rtsx_pci_sdmmc" "btrfs"];
-  boot.supportedFilesystems = [ "btrfs" ];
+  boot.supportedFilesystems = ["btrfs"];
   boot.initrd.kernelModules = [];
   boot.kernelModules = [];
   boot.extraModulePackages = [];
 
   fileSystems."/" = {
-  device = "/dev/disk/by-uuid/7c44c06e-d6d4-4da7-b9f9-ffe7e2ac923c";
-  fsType = "btrfs";
-  options = ["subvol=@" "compress=zstd" "noatime"];
-};
+    device = "/dev/disk/by-uuid/19cd8e0a-9880-4027-855b-0102cd911ed9";
+    fsType = "btrfs";
+    options = ["subvol=@" "compress=zstd" "noatime"];
+  };
 
-fileSystems."/nix" = {
-  device = "/dev/disk/by-uuid/7c44c06e-d6d4-4da7-b9f9-ffe7e2ac923c";
-  fsType = "btrfs";
-  options = ["subvol=@nix" "compress=zstd" "noatime"];
-};
+  fileSystems."/nix" = {
+    device = "/dev/disk/by-uuid/19cd8e0a-9880-4027-855b-0102cd911ed9";
+    fsType = "btrfs";
+    options = ["subvol=@nix" "compress=zstd" "noatime"];
+  };
 
-fileSystems."/home" = {
-  device = "/dev/disk/by-uuid/7c44c06e-d6d4-4da7-b9f9-ffe7e2ac923c";
-  fsType = "btrfs";
-  options = ["subvol=@home" "compress=zstd" "noatime"];
-};
+  fileSystems."/home" = {
+    device = "/dev/disk/by-uuid/19cd8e0a-9880-4027-855b-0102cd911ed9";
+    fsType = "btrfs";
+    options = ["subvol=@home" "compress=zstd" "noatime"];
+  };
   fileSystems."/boot" = {
-    device = "/dev/disk/by-uuid/4390-C20C";
+    device = "/dev/disk/by-uuid/808D-EA0B";
     fsType = "vfat";
     options = ["fmask=0022" "dmask=0022"];
   };
