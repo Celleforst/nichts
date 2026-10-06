@@ -1,4 +1,8 @@
-{pkgs, ...}: {
+{
+  pkgs,
+  lib,
+  ...
+}: {
   networking.networkmanager.enable = true;
   networking.networkmanager.plugins = [pkgs.networkmanager-openconnect];
   environment.systemPackages = with pkgs; [networkmanager openconnect]; # cli tool for managing connections
@@ -15,11 +19,13 @@
 
   nichts.remote-builders.enable = true;
 
-  users.users.mk.extraGroups = ["dialout"];
+  users.users.mk.extraGroups = ["dialout" "plugdev"];
   networking.modemmanager.enable = false;
   systemd.services.NetworkManager-wait-online.enable = false;
 
   boot = {
+    binfmt.emulatedSystems = ["aarch64-linux"];
+    binfmt.registrations.aarch64-linux.fixBinary = true;
     kernelParams = [];
     loader = {
       efi.efiSysMountPoint = "/boot";
@@ -42,23 +48,29 @@
     };
   };
   security.polkit.enable = true;
+  security.polkit.enablePkexecWrapper = true;
   programs.kdeconnect.enable = true;
+  programs.nix-ld.enable = true;
+
+  services.forticlient.enable = true;
+  # libgbm.so.1 is built by pkgs.libgbm (pname "mesa-libgbm") in this nixpkgs,
+  # not by the `mesa` package the module's baseLibraries already covers.
+  services.forticlient.extraLibraries = with pkgs; [libgbm];
 
   programs.gnupg.agent = {
     enable = true;
     enableSSHSupport = true; # optional, replaces ssh-agent
   };
 
-  home-manager.users."mk".wayland.windowManager.hyprland.settings = {
-    workspace = [
-      "1,monitor:eDP-1,default:true"
-    ];
-  };
-
   services.udev.extraRules = ''
     SUBSYSTEM=="usb", ATTRS{idVendor}=="05c6", ATTRS{idProduct}=="9008", MODE="0666", GROUP="plugdev"
     SUBSYSTEM=="usb", ATTRS{idVendor}=="05c6", ATTRS{idProduct}=="900e", MODE="0666", GROUP="plugdev"
+    ATTRS{idVendor}=="1d50", ATTRS{idProduct}=="608c", MODE="0664", GROUP="plugdev", TAG+="uaccess"
   '';
+
+  services.cloudflare-warp.enable = true;
+
+  modules.services.fingerprint.enable = true;
 
   hardware.graphics = {
     enable = true;
@@ -106,7 +118,11 @@
     services.docker.enable = true;
     programs = {
       #firefox.enable = true;
-      alacritty.enable = true;
+      alacritty = {
+        enable = true;
+        blur = true;
+        fake_term = true;
+      };
       vscode.enable = true;
       vesktop.enable = true;
       btop.enable = true;
@@ -125,5 +141,18 @@
       };
     };
   };
-  system.stateVersion = "24.11"; # Did you read the comment?
+  sops = {
+    defaultSopsFile = ../../secrets/secrets.yaml;
+    age.keyFile = "/home/mk/.config/sops/age/keys.txt";
+  };
+
+  virtualisation.vmVariant = {
+    home-manager.users.mk.wayland.windowManager.hyprland.extraConfig = lib.mkForce ''
+      hl.monitor({ output = "", mode = "preferred", position = "auto", scale = 1 })
+    '';
+    virtualisation.cores = 4;
+    virtualisation.memorySize = 4096;
+  };
+
+  system.stateVersion = "26.11"; # Did you read the comment?
 }

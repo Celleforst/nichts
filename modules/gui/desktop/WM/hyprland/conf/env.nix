@@ -1,10 +1,10 @@
 _: {
-  wayland.windowManager.hyprland.settings.env = [
-    "XCURSOR_SIZE,24"
-    "HYPRCURSOR_THEME,Bibata-Modern-Ice"
-    "HYPRCURSOR_SIZE,24"
-    "SDL_VIDEODRIVER,wayland"
-    "SSH_AUTH_SOCK,$XDG_RUNTIME_DIR/gnupg/S.gpg-agent.ssh"
-    "XDG_SCREENSHOTS_DIR,$HOME/Pictures/screenshots"
-  ];
+  wayland.windowManager.hyprland.extraLuaFiles."env" = ''
+    hl.env("XCURSOR_SIZE",        "24")
+    hl.env("HYPRCURSOR_THEME",    "Bibata-Modern-Ice")
+    hl.env("HYPRCURSOR_SIZE",     "24")
+    hl.env("SDL_VIDEODRIVER",     "wayland")
+    hl.env("SSH_AUTH_SOCK",       os.getenv("XDG_RUNTIME_DIR") .. "/gnupg/S.gpg-agent.ssh")
+    hl.env("XDG_SCREENSHOTS_DIR", os.getenv("HOME") .. "/Pictures/screenshots")
+  '';
 }

@@ -1,5 +1,9 @@
 _: {
-  wayland.windowManager.hyprland.settings.cursor = {
-    no_hardware_cursors = true;
-  };
+  wayland.windowManager.hyprland.extraLuaFiles."cursor" = ''
+    hl.config({
+        cursor = {
+            no_hardware_cursors = true,
+        },
+    })
+  '';
 }

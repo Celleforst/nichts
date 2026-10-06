@@ -20,6 +20,11 @@ in {
       type = types.bool;
       default = false;
     };
+    fake_term = mkOption {
+      description = "set TERM to xterm-256color";
+      type = types.bool;
+      default = false;
+    };
   };
 
   config = mkIf cfg.enable {
@@ -28,6 +33,9 @@ in {
 
       programs.alacritty.enable = true;
       programs.alacritty.settings = {
+        env = mkIf cfg.fake_term {
+          TERM = "xterm-256color";
+        };
         font = {
           size = mkForce 12;
           normal = {

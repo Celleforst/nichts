@@ -29,8 +29,9 @@ in {
           main = {
             id = 0;
             isDefault = true;
-            search.default = "DuckDuckGo";
+            search.default = "ddg";
             search.force = true;
+            extensions.force = true;
             settings = {
               "toolkit.legacyUserProfileCustomizations.stylesheets" = true;
               "media.ffmpeg.vaapi.enabled" = true; # enable hardware accelerated video playback (vaapi)
@@ -43,27 +44,27 @@ in {
               nix = {
                 color = "blue";
                 icon = "circle";
-                id = 0;
+                id = 1;
               };
               dangerous = {
                 color = "red";
                 icon = "fruit";
-                id = 1;
+                id = 2;
               };
               shopping = {
                 color = "yellow";
                 icon = "cart";
-                id = 2;
+                id = 3;
               };
               video = {
                 color = "pink";
                 icon = "vacation";
-                id = 3;
+                id = 4;
               };
               studying = {
                 color = "green";
                 icon = "fence";
-                id = 4;
+                id = 5;
               };
             };
           };

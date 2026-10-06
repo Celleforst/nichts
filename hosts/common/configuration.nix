@@ -18,6 +18,11 @@ in {
   nixpkgs.config.allowUnfree = true;
 
   users.users.${username}.uid = 1000;
+
+  sops.secrets.user-password = {
+    neededForUsers = true;
+  };
+
   programs.nix-ld = {
     enable = true;
     libraries = with pkgs; [zlib];
@@ -25,10 +30,10 @@ in {
 
   modules = {
     system = {
-      bluetooth = { 
-	enable = true;
-	blueman = false;
-	};
+      bluetooth = {
+        enable = true;
+        blueman = false;
+      };
       network.enable = true;
       fonts.enable = true;
     };

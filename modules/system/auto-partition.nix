@@ -10,6 +10,7 @@
 in {
   options.modules.system.disks = {
     auto-partition.enable = mkEnableOption "disko";
+    encrypt-root.enable = mkEnableOption "LUKS encryption for the root partition";
     main-disk = mkOption {
       type = types.nullOr types.str;
       description = "The disk the system should be installed on";
@@ -70,7 +71,7 @@ in {
           enable = true;
           device = "nodev";
           efiSupport = true;
-          enableCryptodisk = true;
+          enableCryptodisk = cfg.encrypt-root.enable;
           extraEntries = ''
             menuentry "Reboot" {
               reboot
@@ -104,13 +105,8 @@ in {
                     mountOptions = ["defaults"];
                   };
                 };
-                root = {
-                  size = "100%";
-                  label = "root" + cfg.name-suffix;
-                  # content = {
-                  #   type = "filesystem";
-                  #   name = "cryptroot" + cfg.name-suffix;
-                  content = {
+                root = let
+                  btrfsContent = {
                     type = "btrfs";
                     extraArgs = ["-L" "nixos${cfg.name-suffix}" "-f"];
                     subvolumes = {
@@ -136,7 +132,18 @@ in {
                       };
                     };
                   };
-                  #};
+                in {
+                  size = "100%";
+                  label = "root" + cfg.name-suffix;
+                  content =
+                    if cfg.encrypt-root.enable
+                    then {
+                      type = "luks";
+                      name = "cryptroot" + cfg.name-suffix;
+                      settings.allowDiscards = true;
+                      content = btrfsContent;
+                    }
+                    else btrfsContent;
                 };
               };
             };

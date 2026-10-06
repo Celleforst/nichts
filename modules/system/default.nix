@@ -9,6 +9,7 @@ _: {
     ./network.nix
     ./nix
     ./preserve-system.nix
+    ./secureboot.nix
     ./system.nix
   ];
 }

@@ -19,6 +19,33 @@
     };
   };
 
+  # distrobox-init writes /etc/fish/conf.d/distrobox_config.fish into every
+  # container via an unquoted heredoc. Upstream bug: an unterminated quote
+  # around $XDG_RUNTIME_DIR/$DBUS_SESSION_BUS_ADDRESS breaks fish's parser,
+  # and several `test -z $VAR` checks are left unquoted, which fish expands
+  # to zero arguments (not "") when the variable is completely unset.
+  fix_distrobox_fish_init = self: super: {
+    distrobox = super.distrobox.overrideAttrs (old: {
+      postInstall =
+        (old.postInstall or "")
+        + ''
+          substituteInPlace $out/bin/distrobox-init \
+            --replace-fail 'test -z "\$XDG_RUNTIME_DIR && set -gx XDG_RUNTIME_DIR /run/user/(id -ru)' \
+                           'test -z "\$XDG_RUNTIME_DIR" && set -gx XDG_RUNTIME_DIR /run/user/(id -ru)' \
+            --replace-fail 'test -z "\$DBUS_SESSION_BUS_ADDRESS && set -gx DBUS_SESSION_BUS_ADDRESS unix:path=/run/user/(id -ru)/bus' \
+                           'test -z "\$DBUS_SESSION_BUS_ADDRESS" && set -gx DBUS_SESSION_BUS_ADDRESS unix:path=/run/user/(id -ru)/bus' \
+            --replace-fail 'test -z \$XAUTHORITY' 'test -z "\$XAUTHORITY"' \
+            --replace-fail 'test -z \$XAUTHLOCALHOSTNAME' 'test -z "\$XAUTHLOCALHOSTNAME"' \
+            --replace-fail 'test -z \$WAYLAND_DISPLAY' 'test -z "\$WAYLAND_DISPLAY"' \
+            --replace-fail 'test -z \$DISPLAY' 'test -z "\$DISPLAY"'
+        '';
+    });
+  };
+
+  add_shim = self: super: {
+    shim-signed = super.callPackage ./pkgs/shim {};
+  };
+
   add_catppuccin_wallpapers = self: super: {
     catppuccin-wallpapers = super.fetchFromGitHub {
       owner = "zhichaoh";
@@ -30,7 +57,9 @@
 in {
   nixpkgs.overlays = [
     add_custom_scripts
+    add_shim
     add_catppuccin_wallpapers
     add_nixpkgs_small
+    fix_distrobox_fish_init
   ];
 }

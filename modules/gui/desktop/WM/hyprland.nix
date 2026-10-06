@@ -25,6 +25,7 @@ in {
       hyprshade
       hyprlock
       hyprpaper
+      hyprpolkitagent
       hyprsunset
       rofi
       waybar
@@ -46,6 +47,7 @@ in {
       ffmpeg
       slurp
       libnotify
+      hyprshutdown
     ];
 
     programs.xwayland.enable = true;
@@ -133,17 +135,16 @@ in {
 
       wayland.windowManager.hyprland = {
         enable = true;
-        configType = "hyprlang";
-        systemd.enable = true;
+        configType = "lua";
+        # UWSM (programs.hyprland.withUWSM) already manages the systemd
+        # session units; Home Manager's own integration races it on startup.
+        systemd.enable = false;
         xwayland.enable = true;
-        settings = {
-          "$mainMod" = "SUPER";
-          monitor =
-            map (
-              m: "${m.device},${toString m.resolution.x}x${toString m.resolution.y}@${toString m.refresh_rate},${toString m.position.x}x${toString m.position.y},${toString m.scale}"
-            )
-            monitors;
-        };
+        extraConfig =
+          lib.concatMapStrings (
+            m: "hl.monitor({ output = \"${m.device}\", mode = \"${toString m.resolution.x}x${toString m.resolution.y}@${toString m.refresh_rate}\", position = \"${toString m.position.x}x${toString m.position.y}\", scale = ${toString m.scale} })\n"
+          )
+          monitors;
       };
     };
   };

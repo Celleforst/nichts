@@ -1,4 +1,5 @@
 {pkgs, ...}: let
+  mainMod = "SUPER";
   terminal = "${pkgs.alacritty}/bin/alacritty";
   files = "${pkgs.nemo}/bin/nemo";
   browser = "${pkgs.firefox}/bin/firefox";
@@ -9,129 +10,112 @@
   playerctl = "${pkgs.playerctl}/bin/playerctl";
   wpctl = "${pkgs.wireplumber}/bin/wpctl";
   brightnessctl = "${pkgs.brightnessctl}/bin/brightnessctl";
+  bluetuith = "${pkgs.bluetuith}/bin/bluetuith";
+  clipse = "${pkgs.clipse}/bin/clipse";
 in {
-  wayland.windowManager.hyprland.settings = {
-    bind = [
-      # Applications
-      "$mainMod, Return, exec, ${terminal}"
-      "$mainMod, B, exec, ${browser}"
-      "$mainMod, E, exec, ${files}"
-      "$mainMod, M, exec, ${launcher}"
-      "$mainMod CTRL, B, exec, ${pkgs.alacritty}/bin/alacritty -e ${pkgs.bluetuith}/bin/bluetuith"
-      "$mainMod CTRL, N, exec, nm-connection-editor"
+  wayland.windowManager.hyprland.extraLuaFiles."keybindings" = ''
+    local mainMod = "${mainMod}"
 
-      # Windows
-      "$mainMod, C, killactive"
-      "$mainMod, Space, fullscreen"
-      "$mainMod, F, togglefloating"
-      "$mainMod, S, layoutmsg, togglesplit"
+    -- Applications
+    hl.bind(mainMod .. " + Return",   hl.dsp.exec_cmd("${terminal}"))
+    hl.bind(mainMod .. " + B",        hl.dsp.exec_cmd("${browser}"))
+    hl.bind(mainMod .. " + E",        hl.dsp.exec_cmd("${files}"))
+    hl.bind(mainMod .. " + M",        hl.dsp.exec_cmd("${launcher}"))
+    hl.bind(mainMod .. " + CTRL + B", hl.dsp.exec_cmd("${terminal} -e ${bluetuith}"))
+    hl.bind(mainMod .. " + CTRL + N", hl.dsp.exec_cmd("nm-connection-editor"))
 
-      # Window focus
-      "$mainMod, h, movefocus, l"
-      "$mainMod, l, movefocus, r"
-      "$mainMod, k, movefocus, u"
-      "$mainMod, j, movefocus, d"
+    -- Windows
+    hl.bind(mainMod .. " + C",        hl.dsp.window.close())
+    hl.bind(mainMod .. " + Space",    hl.dsp.window.fullscreen())
+    hl.bind(mainMod .. " + F",        hl.dsp.window.float({ action = "toggle" }))
+    hl.bind(mainMod .. " + S",        hl.dsp.layout("togglesplit"))
+    hl.bind(mainMod .. " + G",        hl.dsp.group.toggle())
+    hl.bind(mainMod .. " + SHIFT + G", hl.dsp.group.next())
 
-      # Window move
-      "$mainMod SHIFT, h, movewindow, l"
-      "$mainMod SHIFT, l, movewindow, r"
-      "$mainMod SHIFT, k, movewindow, u"
-      "$mainMod SHIFT, j, movewindow, d"
-      "$mainMod ALT, right, moveactive, 200 0"
-      "$mainMod ALT, left, moveactive, -200 0"
-      "$mainMod ALT, up, moveactive, 0 -200"
-      "$mainMod ALT, down, moveactive, 0 200"
-      "$mainMod ALT, h, movewindoworgroup, l"
-      "$mainMod ALT, l, movewindoworgroup, r"
-      "$mainMod ALT, k, movewindoworgroup, u"
-      "$mainMod ALT, j, movewindoworgroup, d"
+    -- Window focus (hjkl)
+    hl.bind(mainMod .. " + h", hl.dsp.focus({ direction = "left"  }))
+    hl.bind(mainMod .. " + l", hl.dsp.focus({ direction = "right" }))
+    hl.bind(mainMod .. " + k", hl.dsp.focus({ direction = "up"    }))
+    hl.bind(mainMod .. " + j", hl.dsp.focus({ direction = "down"  }))
 
-      # Window resize
-      "$mainMod CTRL, h, resizeactive, -50 0"
-      "$mainMod CTRL, l, resizeactive, 50 0"
-      "$mainMod CTRL, k, resizeactive, 0 -50"
-      "$mainMod CTRL, j, resizeactive, 0 50"
+    -- Window move (hjkl)
+    hl.bind(mainMod .. " + SHIFT + h", hl.dsp.window.move({ direction = "left"  }))
+    hl.bind(mainMod .. " + SHIFT + l", hl.dsp.window.move({ direction = "right" }))
+    hl.bind(mainMod .. " + SHIFT + k", hl.dsp.window.move({ direction = "up"    }))
+    hl.bind(mainMod .. " + SHIFT + j", hl.dsp.window.move({ direction = "down"  }))
 
-      # Groups
-      "$mainMod, G, togglegroup"
-      "$mainMod SHIFT, G, changegroupactive"
+    -- Window move by pixels (floating windows)
+    hl.bind(mainMod .. " + ALT + right", hl.dsp.window.move({ x =  200, y =    0 }))
+    hl.bind(mainMod .. " + ALT + left",  hl.dsp.window.move({ x = -200, y =    0 }))
+    hl.bind(mainMod .. " + ALT + up",    hl.dsp.window.move({ x =    0, y = -200 }))
+    hl.bind(mainMod .. " + ALT + down",  hl.dsp.window.move({ x =    0, y =  200 }))
 
-      # Scratchpad
-      "$mainMod, apostrophe, togglespecialworkspace"
-      "$mainMod SHIFT, apostrophe, movetoworkspace, special"
+    -- Window move to/from group
+    hl.bind(mainMod .. " + ALT + h", hl.dsp.group.move_window({ direction = "left"  }))
+    hl.bind(mainMod .. " + ALT + l", hl.dsp.group.move_window({ direction = "right" }))
+    hl.bind(mainMod .. " + ALT + k", hl.dsp.group.move_window({ direction = "up"    }))
+    hl.bind(mainMod .. " + ALT + j", hl.dsp.group.move_window({ direction = "down"  }))
 
-      # Actions
-      ", PRINT, exec, ${screenshot} copy area"
-      "ALT, PRINT, exec, ${screenshot} copysave area"
-      "$mainMod SHIFT, S, exec, ${screenshot} save area - | ${satty} -f -"
-      "CTRL ALT, L, exec, ${lock}"
-      "$mainMod, Escape, exec, hypr-powermenu"
-      "$mainMod, V, exec, ${pkgs.clipse}/bin/clipse"
-      "$mainMod CTRL, R, exec, pkill waybar || waybar"
-      "$mainMod CTRL, S, exec, hypr-gif-record"
-      "$mainMod SHIFT, R, exec, hyprctl reload"
-      "$mainMod CTRL, apostrophe, exec, hypr-keybindings"
+    -- Window resize (hjkl)
+    hl.bind(mainMod .. " + CTRL + h", hl.dsp.window.resize({ x = -50, y =   0, relative = true }))
+    hl.bind(mainMod .. " + CTRL + l", hl.dsp.window.resize({ x =  50, y =   0, relative = true }))
+    hl.bind(mainMod .. " + CTRL + k", hl.dsp.window.resize({ x =   0, y = -50, relative = true }))
+    hl.bind(mainMod .. " + CTRL + j", hl.dsp.window.resize({ x =   0, y =  50, relative = true }))
 
-      # Workspaces
-      "$mainMod, 1, workspace, 1"
-      "$mainMod, 2, workspace, 2"
-      "$mainMod, 3, workspace, 3"
-      "$mainMod, 4, workspace, 4"
-      "$mainMod, 5, workspace, 5"
-      "$mainMod, 6, workspace, 6"
-      "$mainMod, 7, workspace, 7"
-      "$mainMod, 8, workspace, 8"
-      "$mainMod, 9, workspace, 9"
-      "$mainMod, 0, workspace, 10"
-      "$mainMod SHIFT, 1, movetoworkspace, 1"
-      "$mainMod SHIFT, 2, movetoworkspace, 2"
-      "$mainMod SHIFT, 3, movetoworkspace, 3"
-      "$mainMod SHIFT, 4, movetoworkspace, 4"
-      "$mainMod SHIFT, 5, movetoworkspace, 5"
-      "$mainMod SHIFT, 6, movetoworkspace, 6"
-      "$mainMod SHIFT, 7, movetoworkspace, 7"
-      "$mainMod SHIFT, 8, movetoworkspace, 8"
-      "$mainMod SHIFT, 9, movetoworkspace, 9"
-      "$mainMod SHIFT, 0, movetoworkspace, 10"
-      "$mainMod, Tab, workspace, m+1"
-      "$mainMod SHIFT, Tab, workspace, m-1"
-      "$mainMod CTRL, Tab, workspace, empty"
+    -- Scratchpad
+    hl.bind(mainMod .. " + apostrophe",         hl.dsp.workspace.toggle_special())
+    hl.bind(mainMod .. " + SHIFT + apostrophe", hl.dsp.window.move({ workspace = "special" }))
 
-      # Fn keys
-      ", XF86MonBrightnessUp, exec, ${brightnessctl} -q s +5%"
-      ", XF86MonBrightnessDown, exec, ${brightnessctl} -q s 5%-"
-      "SHIFT, XF86MonBrightnessUP, exec, ${brightnessctl} -q s 50%"
-      "$mainMod SHIFT, XF86MonBrightnessUP, exec, ${brightnessctl} -q s 100%"
-      "SHIFT, XF86MonBrightnessDown, exec, ${brightnessctl} -q s 1%"
-      ", XF86AudioMute, exec, ${wpctl} set-mute @DEFAULT_AUDIO_SINK@ toggle"
-      ", XF86AudioMicMute, exec, ${wpctl} set-mute @DEFAULT_AUDIO_SOURCE@ toggle"
-      ", XF86AudioPlay, exec, ${playerctl} play-pause"
-      ", XF86AudioPause, exec, ${playerctl} pause"
-      ", XF86AudioNext, exec, ${playerctl} next"
-      ", XF86AudioPrev, exec, ${playerctl} previous"
-      ", XF86Lock, exec, ${lock}"
-    ];
+    -- Actions
+    hl.bind("PRINT",                            hl.dsp.exec_cmd("${screenshot} copy area"))
+    hl.bind("ALT + PRINT",                      hl.dsp.exec_cmd("${screenshot} copysave area"))
+    hl.bind(mainMod .. " + SHIFT + S",          hl.dsp.exec_cmd("${screenshot} save area - | ${satty} -f -"))
+    hl.bind("CTRL + ALT + L",                   hl.dsp.exec_cmd("${lock}"))
+    hl.bind(mainMod .. " + L",                  hl.dsp.exec_cmd("${lock}"))
+    hl.bind(mainMod .. " + Escape",             hl.dsp.exec_cmd("hypr-powermenu"))
+    hl.bind(mainMod .. " + V",                  hl.dsp.exec_cmd("${terminal} --class clipse -e ${clipse}"))
+    hl.bind(mainMod .. " + CTRL + R",           hl.dsp.exec_cmd("sh -c 'pkill waybar || waybar'"))
+    hl.bind(mainMod .. " + CTRL + S",           hl.dsp.exec_cmd("hypr-gif-record"))
+    hl.bind(mainMod .. " + SHIFT + R",          hl.dsp.exec_cmd("hyprctl reload"))
+    hl.bind(mainMod .. " + CTRL + apostrophe",  hl.dsp.exec_cmd("hypr-keybindings"))
 
-    binde = [
-      ", XF86AudioRaiseVolume, exec, ${wpctl} set-volume -l 1.5 @DEFAULT_AUDIO_SINK@ 5%+"
-      ", XF86AudioLowerVolume, exec, ${wpctl} set-volume @DEFAULT_AUDIO_SINK@ 5%-"
-    ];
+    -- Workspaces 1–10
+    for i = 1, 10 do
+        local key = tostring(i % 10)
+        hl.bind(mainMod .. " + " .. key,         hl.dsp.focus({ workspace = i }))
+        hl.bind(mainMod .. " + SHIFT + " .. key, hl.dsp.window.move({ workspace = i }))
+    end
+    hl.bind(mainMod .. " + Tab",         hl.dsp.focus({ workspace = "m+1"   }))
+    hl.bind(mainMod .. " + SHIFT + Tab", hl.dsp.focus({ workspace = "m-1"   }))
+    hl.bind(mainMod .. " + CTRL + Tab",  hl.dsp.focus({ workspace = "empty" }))
 
-    bindl = [
-      ", switch:Lid Switch, exec, ${lock}"
-    ];
+    -- Fn / media keys
+    hl.bind("XF86MonBrightnessUp",                          hl.dsp.exec_cmd("${brightnessctl} -q s +5%"))
+    hl.bind("XF86MonBrightnessDown",                        hl.dsp.exec_cmd("${brightnessctl} -q s 5%-"))
+    hl.bind("SHIFT + XF86MonBrightnessUp",                  hl.dsp.exec_cmd("${brightnessctl} -q s 50%"))
+    hl.bind(mainMod .. " + SHIFT + XF86MonBrightnessUp",    hl.dsp.exec_cmd("${brightnessctl} -q s 100%"))
+    hl.bind("SHIFT + XF86MonBrightnessDown",                hl.dsp.exec_cmd("${brightnessctl} -q s 1%"))
+    hl.bind("XF86AudioMute",    hl.dsp.exec_cmd("${wpctl} set-mute @DEFAULT_AUDIO_SINK@ toggle"))
+    hl.bind("XF86AudioMicMute", hl.dsp.exec_cmd("${wpctl} set-mute @DEFAULT_AUDIO_SOURCE@ toggle"))
+    hl.bind("XF86AudioPlay",    hl.dsp.exec_cmd("${playerctl} play-pause"))
+    hl.bind("XF86AudioPause",   hl.dsp.exec_cmd("${playerctl} pause"))
+    hl.bind("XF86AudioNext",    hl.dsp.exec_cmd("${playerctl} next"))
+    hl.bind("XF86AudioPrev",    hl.dsp.exec_cmd("${playerctl} previous"))
+    hl.bind("XF86ScreenSaver",  hl.dsp.exec_cmd("${lock}"), { locked = true })
+    hl.bind("XF86AudioRaiseVolume", hl.dsp.exec_cmd("${wpctl} set-volume -l 1.5 @DEFAULT_AUDIO_SINK@ 5%+"), { repeating = true })
+    hl.bind("XF86AudioLowerVolume", hl.dsp.exec_cmd("${wpctl} set-volume @DEFAULT_AUDIO_SINK@ 5%-"),        { repeating = true })
 
-    bindm = [
-      "$mainMod SHIFT, Control_L, movewindow"
-      "$mainMod, ALT_L, resizewindow"
-    ];
-  };
+    -- Lid switch
+    hl.bind("switch:Lid Switch", hl.dsp.exec_cmd("${lock}"), { locked = true })
 
-  # Submaps need ordered placement in the config file
-  wayland.windowManager.hyprland.extraConfig = ''
-    bind = $mainMod CTRL, P, submap, passthru
-    submap = passthru
-    bind = $mainMod CTRL, Backspace, submap, reset
-    submap = reset
+    -- Mouse move/resize
+    hl.bind(mainMod .. " + SHIFT + mouse:272", hl.dsp.window.drag(),   { mouse = true })
+    hl.bind(mainMod .. " + mouse:273",         hl.dsp.window.resize(), { mouse = true })
+
+    -- Passthru submap (forward all keys to focused VM/app)
+    hl.bind(mainMod .. " + CTRL + P", hl.dsp.submap("passthru"))
+    hl.define_submap("passthru", function()
+        hl.bind(mainMod .. " + CTRL + BackSpace", hl.dsp.submap("reset"))
+    end)
   '';
 }

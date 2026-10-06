@@ -39,7 +39,22 @@ in {
     home-manager.users.${username} = {
       programs.fish = {
         enable = true;
-        interactiveShellInit = "set fish_greeting";
+        interactiveShellInit = ''
+          set fish_greeting
+
+          # Host tools (atuin, hyprctl, ...) aren't on PATH inside distrobox
+          # containers even though $PATH mentions them, since the NixOS
+          # directories it points to (/etc/profiles, /run/current-system)
+          # don't exist there. Distrobox mounts the whole host root at
+          # /run/host instead, so fish that up onto PATH when containerized.
+          if set -q CONTAINER_ID
+              for p in /run/host/etc/static/profiles/per-user/${username}/bin /run/host/run/current-system/sw/bin
+                  if test -d $p
+                      set -gx PATH $PATH $p
+                  end
+              end
+          end
+        '';
         plugins = [
           {
             name = "sponge";

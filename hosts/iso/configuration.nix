@@ -10,6 +10,11 @@
 
   services.logrotate.checkConfig = false;
 
+  sops = {
+    defaultSopsFile = ../../secrets/secrets.yaml;
+    age.keyFile = "/home/mk/.config/sops/age/keys.txt";
+  };
+
   networking.hostName = "iso"; # Define your hostname.
   networking.hostId = "ff13dcb3";
   networking.networkmanager.enable = true;
@@ -18,6 +23,7 @@
 
   # IMPORTANT: empty password!
   users.users.${config.modules.system.username}.password = "";
+  services.getty.autologinUser = config.modules.system.username;
 
   # be nice to your ssds
   services.fstrim.enable = true;
@@ -29,11 +35,15 @@
       session = "uwsm start -- hyprland.desktop";
     };
     system = rec {
-      hostname = "iso";
+      network.hostname = "iso";
       username = "mk";
       gitPath = "/home/${username}/repos/nichts";
       wayland = true;
       monitors = [];
+      secureboot = {
+        enable = true;
+        certFile = ../../keys/secureboot.cer;
+      };
       disks = {
         auto-partition.enable = true;
         swap-size = null; # disable swap (usb sticks are smalle, no space to waste)

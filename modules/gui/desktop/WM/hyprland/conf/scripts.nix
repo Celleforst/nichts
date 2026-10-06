@@ -12,11 +12,11 @@
           -theme-str 'listview {lines: 5;}')
 
     case "$chosen" in
-      "$shutdown") systemctl poweroff ;;
-      "$reboot")   systemctl reboot ;;
+      "$shutdown") hyprshutdown -t 'Shutting down...' --post-cmd 'shutdown -P 0' ;;
+      "$reboot")   hyprshutdown -t 'Restarting...' --post-cmd 'reboot' ;;
       "$suspend")  systemctl suspend ;;
       "$lock")     ${pkgs.hyprlock}/bin/hyprlock ;;
-      "$logout")   hyprctl dispatch exit ;;
+      "$logout")   hyprshutdown -t 'Logging out...' ;;
     esac
   '';
 

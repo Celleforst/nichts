@@ -7,6 +7,7 @@
     inputs.home-manager.nixosModules.home-manager
     inputs.disko.nixosModules.disko
     inputs.sops-nix.nixosModules.sops
+    inputs.forticlient-nixos.nixosModules.forticlient
     ../overlay.nix
     ../modules
   ];
@@ -25,5 +26,10 @@ in {
     inherit system specialArgs;
     modules =
       baseModules ++ [./pluto];
+  };
+  mercury = lib.nixosSystem {
+    inherit system specialArgs;
+    modules =
+      baseModules ++ [./mercury];
   };
 }

@@ -4,6 +4,5 @@ _: {
     ./configuration.nix
     ./hardware-configuration.nix
     ./packages.nix
-    ../../modules/services/fingerprint.nix
   ];
 }
