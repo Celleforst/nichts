@@ -65,25 +65,51 @@
   };
 
   boot.initrd.kernelModules = ["nvidia" "i915" "nvidia_modeset" "nvidia_uvm" "nvidia_drm"];
+  boot.kernelParams = [ "video=HDMI-A-3:1920x1080@60" ];
+  # Always create HDMI PCM audio devices regardless of ELD/EDID validity,
+  # so HDMI audio sinks appear in PipeWire even without a physical monitor.
+  boot.extraModprobeConfig = ''
+    options snd_hda_codec_hdmi static_hdmi_pcm=1
+  '';
+
   services.xserver = {
     enable = true;
-    displayManager.lightdm = {
-      enable = true;
-    };
+    displayManager.lightdm.enable = true;
     displayManager = {
-autoLogin = {
-      enable = true;
-      user = "mk";
+      autoLogin = {
+        enable = true;
+        user = "mk";
+      };
+      sessionCommands = ''
+        xset s off
+        xset -dpms
+        xset s noblank
+        pkill -u mk steam || true
+        ${pkgs.xorg.xrandr}/bin/xrandr --newmode "1920x1080" 148.50 1920 2008 2052 2200 1080 1084 1089 1125 +HSync +Vsync || true
+        ${pkgs.xorg.xrandr}/bin/xrandr --addmode HDMI-0 "1920x1080" || true
+        ${pkgs.xorg.xrandr}/bin/xrandr --output HDMI-0 --mode 1920x1080
+        ${pkgs.feh}/bin/feh --bg-scale ${pkgs.catppuccin-wallpapers}/landscapes/salty_mountains.png
+        ${pkgs.picom}/bin/picom --backend xrender --daemon
+      '';
     };
- sessionCommands = ''
-xset s off
-  xset -dpms
-  xset s noblank
-  xrandr --output HDMI-0 --same-as DP-2
-'';
-};
     videoDrivers = [ "nvidia" ];
-};
+
+    deviceSection = ''
+      Option "AllowEmptyInitialConfiguration"
+      Option "ConnectedMonitor" "HDMI-0"
+      Option "UseDisplayDevice" "HDMI-0"
+      Option "ModeValidation" "NoMaxPClkCheck, NoEdidMaxPClkCheck, NoMaxSizeCheck, NoHorizSyncCheck, NoVertRefreshCheck, NoVirtualSizeCheck"
+    '';
+
+
+    screenSection = ''
+      DefaultDepth 24
+      SubSection "Display"
+        Depth 24
+        Virtual 1920 1080
+      EndSubSection
+    '';
+  };
 
 security.wrappers.bwrap = {
   source = "${pkgs.bubblewrap}/bin/bwrap";
@@ -105,7 +131,7 @@ services.xserver.windowManager.openbox.enable = true;
 
     # Use the NVidia open source kernel module (not Nouveau).
     # Supported on Turing (RTX 20-series) and newer architectures.
-    open = false;
+    open = true;
 
     # Enable the Nvidia settings menu, accessible via `nvidia-settings`.
     nvidiaSettings = true;
@@ -125,10 +151,12 @@ services.xserver.windowManager.openbox.enable = true;
 
   nix.settings.substituters = [
     "https://cache.saumon.network/proxmox-nixos"
+    "https://cache.nixos.org https://cuda-maintainers.cachix.org"
   ];
   nix.settings.trusted-public-keys = [
     "proxmox-nixos:D9RYSWpQQC/msZUWphOY2I5RLH5Dd6yQcaHIuug7dWM="
-  ];
+    "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY= cuda-maintainers.cachix.org-1:0dq3bujKpuEPMCX6U4WylrUDZ9JyUG0VpVZa7CNfq5E="  
+];
 
   # Bootloader.
   boot.loader.systemd-boot.enable = true;
@@ -137,9 +165,7 @@ services.xserver.windowManager.openbox.enable = true;
   networking.hostName = "server-mk"; # Define your hostname.
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
 
-  # Needed for default bridge network to automatically work
-  #boot.kernel.sysctl."net.ipv4.ip_forward" = 1;
-  #boot.kernel.sysctl."net.ipv6.ip_forward" = 1;
+  boot.kernel.sysctl."net.ipv4.ip_forward" = 1;
   networking = {
     networkmanager.enable = lib.mkForce false;
     useNetworkd = true;
@@ -169,12 +195,16 @@ programs.steam = {
     autoStart = true;
     capSysAdmin = true;
     openFirewall = true;
+    settings.output_name = "HDMI-0";
   };
+
   environment.systemPackages = [
     (pkgs.writeShellScriptBin "steam-bigpicture" ''
       export DISPLAY=:0
       export XAUTHORITY=/home/mk/.Xauthority
-      exec ${pkgs.steam}/bin/steam steam://open/bigpicture
+      pkill -u mk -x steam || true
+      sleep 1
+      exec ${pkgs.steam}/bin/steam -bigpicture
     '')
   ];
   services.sunshine.package = pkgs.sunshine.override {
@@ -204,7 +234,7 @@ programs.steam = {
   };
 
   users.users.mk = {
-    extraGroups = ["libvirtd" "incus-admin" "wheel" "docker" "uinput"];
+    extraGroups = ["libvirtd" "incus-admin" "wheel" "docker" "uinput" "video"];
     openssh.authorizedKeys.keys = [
       "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMYhGhiNq699nGBTiNYFLdL6RjlsxcUZiJadCFJfC8T8 mk@archlinux"
       "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICRs6uWfeuOTpW6xuaHvxhoM44Lpfrn7ARRpu2maxkQq u0_a121@localhost"
@@ -329,6 +359,7 @@ programs.steam = {
       daemon.settings = {
         "data-root" = "/var/lib/docker";
         storage-driver = "btrfs";
+        dns = ["9.9.9.9" "1.1.1.1"];
       };
       rootless = {
         enable = false;
@@ -355,9 +386,7 @@ programs.steam = {
           ];
           autoStart = true;
           extraOptions = [
-            "--pull=always"
-            "--restart=unless-stopped"
-            "--rm=false"
+            "--pull=missing"
           ];
         };
       };
@@ -373,7 +402,7 @@ programs.steam = {
     recommendedTlsSettings = true;
 
     virtualHosts = {
-      "nextcloud.012204.xyz" = {
+      "nextcloud.002204.xyz" = {
         listen = [
           {
             addr = "127.0.0.1";
@@ -403,7 +432,7 @@ programs.steam = {
 
   services.opencloud = {
     enable = true;
-    url = "https://opencloud.012204.xyz";
+    url = "https://opencloud.002204.xyz";
     environment = {
       PROXY_TLS = "false";
       OC_INSECURE = "true";
@@ -416,6 +445,8 @@ programs.steam = {
   boot.kernel.sysctl = {
     "net.core.rmem_max" = 7340032;
     "net.core.wmem_max" = 7340032;
+    # Prevent ephemeral ports from colliding with Sunshine's fixed ports (RTSP 48010, video/audio 47984-48010)
+    "net.ipv4.ip_local_reserved_ports" = "47984-48010";
   };
 
   services.cloudflared = {
@@ -425,12 +456,13 @@ programs.steam = {
         #    credentialsFile = "${config.sops.seorets.cloudflared-creds.path}";
         credentialsFile = "/var/lib/cloudflared/254305d4-c444-4bad-8c2b-efeab46b6799.json";
         default = "http_status:404";
+	warp-routing.enabled = true;
         ingress = {
-          "portainer.012204.xyz" = "http://localhost:9000";
-          "homepage.012204.xyz" = "http://localhost:8082";
-          "opencloud.012204.xyz" = "http://localhost:8081";
-          "homeassistant.012204.xyz" = "http://192.168.1.161:8123";
-          "server.012204.xyz" = "ssh://localhost:22";
+          "portainer.002204.xyz" = "http://localhost:9000";
+          "homepage.002204.xyz" = "http://localhost:8082";
+          "opencloud.002204.xyz" = "http://localhost:8081";
+          "homeassistant.002204.xyz" = "http://192.168.1.161:8123";
+          "server.002204.xyz" = "ssh://localhost:22";
         };
       };
     };
