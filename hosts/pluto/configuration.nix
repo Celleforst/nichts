@@ -356,12 +356,10 @@
                 pool = "default";
                 type = "disk";
               };
-              config = {
-                limits = {
-                  cpu = 2;
-                  memory = "4GiB";
-                };
-              };
+            };
+            config = {
+              "limits.cpu" = "2";
+              "limits.memory" = "4GiB";
             };
           }
         ];
