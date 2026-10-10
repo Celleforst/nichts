@@ -196,6 +196,11 @@
     forceDefaultRuntime = true;
   };
 
+  # Constellation (camera-based positional) tracking defaults off upstream;
+  # confirmed working (both sensors streaming into the tracker) via manual
+  # `RIFT_PROBER_CONSTELLATION_TRACKING=1 monado-cli probe` testing.
+  systemd.user.services.monado.environment.RIFT_PROBER_CONSTELLATION_TRACKING = "1";
+
   services.udev.extraRules = ''
     # xr-hardware (pulled in automatically by services.monado) already covers
     # the CV1 HMD (2833:0031) and sensor (2833:0211), but this unit's sensor
