@@ -18,6 +18,7 @@ in {
     winetricks
     wine-staging
     monado-cv1
+    openxr-hello-xr
     opencomposite
     # One-off registration of Monado's bundled SteamVR driver plugin with
     # SteamVR's path registry -- run once after SteamVR has been installed

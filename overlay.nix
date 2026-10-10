@@ -50,6 +50,10 @@
     monado-cv1 = super.callPackage ./pkgs/monado-cv1 {};
   };
 
+  add_openxr_hello_xr = self: super: {
+    openxr-hello-xr = super.callPackage ./pkgs/openxr-hello-xr {};
+  };
+
   add_catppuccin_wallpapers = self: super: {
     catppuccin-wallpapers = super.fetchFromGitHub {
       owner = "zhichaoh";
@@ -63,6 +67,7 @@ in {
     add_custom_scripts
     add_shim
     add_monado_cv1
+    add_openxr_hello_xr
     add_catppuccin_wallpapers
     add_nixpkgs_small
     fix_distrobox_fish_init
