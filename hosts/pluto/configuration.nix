@@ -6,7 +6,6 @@
 }: {
   #services.vscode-server.enable = true;
 
-
   nixpkgs.config.permittedInsecurePackages = [
     "minio-2025-10-15T17-29-55Z"
   ];
@@ -65,7 +64,7 @@
   };
 
   boot.initrd.kernelModules = ["nvidia" "i915" "nvidia_modeset" "nvidia_uvm" "nvidia_drm"];
-  boot.kernelParams = [ "video=HDMI-A-3:1920x1080@60" ];
+  boot.kernelParams = ["video=HDMI-A-3:1920x1080@60"];
   # Always create HDMI PCM audio devices regardless of ELD/EDID validity,
   # so HDMI audio sinks appear in PipeWire even without a physical monitor.
   boot.extraModprobeConfig = ''
@@ -92,7 +91,7 @@
         ${pkgs.picom}/bin/picom --backend xrender --daemon
       '';
     };
-    videoDrivers = [ "nvidia" ];
+    videoDrivers = ["nvidia"];
 
     deviceSection = ''
       Option "AllowEmptyInitialConfiguration"
@@ -100,7 +99,6 @@
       Option "UseDisplayDevice" "HDMI-0"
       Option "ModeValidation" "NoMaxPClkCheck, NoEdidMaxPClkCheck, NoMaxSizeCheck, NoHorizSyncCheck, NoVertRefreshCheck, NoVirtualSizeCheck"
     '';
-
 
     screenSection = ''
       DefaultDepth 24
@@ -111,15 +109,15 @@
     '';
   };
 
-security.wrappers.bwrap = {
-  source = "${pkgs.bubblewrap}/bin/bwrap";
-  setuid = true;
-  owner = "root";
-  group = "root";
-};
+  security.wrappers.bwrap = {
+    source = "${pkgs.bubblewrap}/bin/bwrap";
+    setuid = true;
+    owner = "root";
+    group = "root";
+  };
 
-services.displayManager.defaultSession ="none+openbox";
-services.xserver.windowManager.openbox.enable = true;
+  services.displayManager.defaultSession = "none+openbox";
+  services.xserver.windowManager.openbox.enable = true;
 
   hardware.nvidia = {
     # Modesetting is required for most modern Wayland compositors (e.g., Hyprland, Sway).
@@ -155,8 +153,8 @@ services.xserver.windowManager.openbox.enable = true;
   ];
   nix.settings.trusted-public-keys = [
     "proxmox-nixos:D9RYSWpQQC/msZUWphOY2I5RLH5Dd6yQcaHIuug7dWM="
-    "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY= cuda-maintainers.cachix.org-1:0dq3bujKpuEPMCX6U4WylrUDZ9JyUG0VpVZa7CNfq5E="  
-];
+    "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY= cuda-maintainers.cachix.org-1:0dq3bujKpuEPMCX6U4WylrUDZ9JyUG0VpVZa7CNfq5E="
+  ];
 
   # Bootloader.
   boot.loader.systemd-boot.enable = true;
@@ -183,14 +181,30 @@ services.xserver.windowManager.openbox.enable = true;
       useDHCP = true;
     };
   };
-programs.steam = {
-  enable = true;
-  remotePlay.openFirewall = false; # Open ports in the firewall for Steam Remote Play
-  extraCompatPackages = [ pkgs.proton-ge-bin ];
-};
+  programs.steam = {
+    enable = true;
+    remotePlay.openFirewall = false; # Open ports in the firewall for Steam Remote Play
+    extraCompatPackages = [pkgs.proton-ge-bin];
+  };
 
-#environment.etc."X11/edid.bin".source = /home/mk/edid.bin;
- services.sunshine = {
+  # Oculus Rift CV1, via Monado (see pkgs/monado-cv1 for why it's a custom
+  # build) as the system OpenXR runtime.
+  services.monado = {
+    enable = true;
+    package = pkgs.monado-cv1;
+    defaultRuntime = true;
+    forceDefaultRuntime = true;
+  };
+
+  services.udev.extraRules = ''
+    # xr-hardware (pulled in automatically by services.monado) already covers
+    # the CV1 HMD (2833:0031) and sensor (2833:0211), but this unit's sensor
+    # also enumerates under 2833:2031, which isn't in that ruleset.
+    ATTRS{idVendor}=="2833", ATTRS{idProduct}=="2031", TAG+="uaccess"
+  '';
+
+  #environment.etc."X11/edid.bin".source = /home/mk/edid.bin;
+  services.sunshine = {
     enable = true;
     autoStart = true;
     capSysAdmin = true;
@@ -456,7 +470,7 @@ programs.steam = {
         #    credentialsFile = "${config.sops.seorets.cloudflared-creds.path}";
         credentialsFile = "/var/lib/cloudflared/254305d4-c444-4bad-8c2b-efeab46b6799.json";
         default = "http_status:404";
-	warp-routing.enabled = true;
+        warp-routing.enabled = true;
         ingress = {
           "portainer.002204.xyz" = "http://localhost:9000";
           "homepage.002204.xyz" = "http://localhost:8082";

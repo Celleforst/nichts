@@ -17,5 +17,14 @@ in {
     lutris
     winetricks
     wine-staging
+    monado-cv1
+    opencomposite
+    # One-off registration of Monado's bundled SteamVR driver plugin with
+    # SteamVR's path registry -- run once after SteamVR has been installed
+    # and launched at least once (vrpathreg only exists after that).
+    (writeShellScriptBin "monado-steamvr-register" ''
+      exec "$HOME/.steam/steam/steamapps/common/SteamVR/bin/linux64/vrpathreg" \
+        adddriver ${monado-cv1}/share/steamvr-monado
+    '')
   ];
 }

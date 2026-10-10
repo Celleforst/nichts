@@ -46,6 +46,10 @@
     shim-signed = super.callPackage ./pkgs/shim {};
   };
 
+  add_monado_cv1 = self: super: {
+    monado-cv1 = super.callPackage ./pkgs/monado-cv1 {};
+  };
+
   add_catppuccin_wallpapers = self: super: {
     catppuccin-wallpapers = super.fetchFromGitHub {
       owner = "zhichaoh";
@@ -54,11 +58,11 @@
       sha256 = "sha256-h+cFlTXvUVJPRMpk32jYVDDhHu1daWSezFcvhJqDpmU=";
     };
   };
-
 in {
   nixpkgs.overlays = [
     add_custom_scripts
     add_shim
+    add_monado_cv1
     add_catppuccin_wallpapers
     add_nixpkgs_small
     fix_distrobox_fish_init
