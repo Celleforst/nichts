@@ -33,7 +33,10 @@ in {
     # Use as the game's launch options: `vr-opencomposite-launch %command%`.
     (writeShellScriptBin "vr-opencomposite-launch" ''
       export VR_OVERRIDE="${opencomposite}/lib/opencomposite"
-      export XR_RUNTIME_JSON="/etc/xdg/openxr/1/active_runtime.json"
+      # pressure-vessel maps the host's /etc under /run/host/etc inside the
+      # Steam Runtime sandbox (same pattern as /usr -> /run/host/usr) -- the
+      # bare /etc path doesn't exist in there, so the game can't find it.
+      export XR_RUNTIME_JSON="/run/host/etc/xdg/openxr/1/active_runtime.json"
       export PRESSURE_VESSEL_FILESYSTEMS_RW="$XDG_RUNTIME_DIR/monado_comp_ipc:/nix/store"
       exec "$@"
     '')
