@@ -85,8 +85,8 @@
         xset s noblank
         pkill -u mk steam || true
         ${pkgs.xorg.xrandr}/bin/xrandr --newmode "1920x1080" 148.50 1920 2008 2052 2200 1080 1084 1089 1125 +HSync +Vsync || true
-        ${pkgs.xorg.xrandr}/bin/xrandr --addmode HDMI-0 "1920x1080" || true
-        ${pkgs.xorg.xrandr}/bin/xrandr --output HDMI-0 --mode 1920x1080
+        ${pkgs.xorg.xrandr}/bin/xrandr --addmode DP-0 "1920x1080" || true
+        ${pkgs.xorg.xrandr}/bin/xrandr --output DP-0 --mode 1920x1080
         ${pkgs.feh}/bin/feh --bg-scale ${pkgs.catppuccin-wallpapers}/landscapes/salty_mountains.png
         ${pkgs.picom}/bin/picom --backend xrender --daemon
       '';
@@ -95,8 +95,8 @@
 
     deviceSection = ''
       Option "AllowEmptyInitialConfiguration"
-      Option "ConnectedMonitor" "HDMI-0"
-      Option "UseDisplayDevice" "HDMI-0"
+      Option "ConnectedMonitor" "DP-0"
+      Option "UseDisplayDevice" "DP-0"
       Option "ModeValidation" "NoMaxPClkCheck, NoEdidMaxPClkCheck, NoMaxSizeCheck, NoHorizSyncCheck, NoVertRefreshCheck, NoVirtualSizeCheck"
     '';
 
@@ -214,7 +214,7 @@
     autoStart = true;
     capSysAdmin = true;
     openFirewall = true;
-    settings.output_name = "HDMI-0";
+    settings.output_name = "DP-0";
   };
 
   environment.systemPackages = [
