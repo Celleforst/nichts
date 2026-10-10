@@ -27,5 +27,15 @@ in {
       exec "$HOME/.steam/steam/steamapps/common/SteamVR/bin/linux64/vrpathreg" \
         adddriver ${monado-cv1}/share/steamvr-monado
     '')
+    # Steam launch-options wrapper for OpenComposite: routes a game's OpenVR
+    # calls straight to Monado's OpenXR runtime, bypassing vrserver/vrcompositor
+    # entirely (see pluto host notes on VRInitError_Compositor_CannotDRMLeaseDisplay).
+    # Use as the game's launch options: `vr-opencomposite-launch %command%`.
+    (writeShellScriptBin "vr-opencomposite-launch" ''
+      export VR_OVERRIDE="${opencomposite}/lib/opencomposite"
+      export XR_RUNTIME_JSON="/etc/xdg/openxr/1/active_runtime.json"
+      export PRESSURE_VESSEL_FILESYSTEMS_RW="$XDG_RUNTIME_DIR/monado_comp_ipc:/nix/store"
+      exec "$@"
+    '')
   ];
 }
