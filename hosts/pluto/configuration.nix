@@ -201,6 +201,39 @@
   # `RIFT_PROBER_CONSTELLATION_TRACKING=1 monado-cli probe` testing.
   systemd.user.services.monado.environment.RIFT_PROBER_CONSTELLATION_TRACKING = "1";
 
+  # Temporary: RIFT_LOG defaults to "warn", which hides the
+  # "Touch controller N added to constellation tracker" confirmation our
+  # touch-controller-constellation-tracking.patch logs at INFO -- needed to
+  # tell "never registered" apart from "registered but can't find a pose"
+  # while debugging the right controller's stuck tracking.
+  systemd.user.services.monado.environment.RIFT_LOG = "info";
+
+  # Lets Monado's own u_linux_try_to_set_realtime_priority_on_thread succeed
+  # for its "VBlank Events"/"Multi Client Module" threads (confirmed via
+  # journal: it only ever targets those two, never the CV1 tracker thread --
+  # that unreleased driver doesn't request RT priority at all). Harmless to
+  # leave raised even though it didn't end up being the fix for tracker
+  # jitter -- see the CPUAffinity split below for that.
+  security.pam.loginLimits = [
+    {
+      domain = "mk";
+      type = "-";
+      item = "rtprio";
+      value = "95";
+    }
+  ];
+
+  # CPU affinity/isolation (previously: Monado pinned to cores 0-3, the game
+  # confined to 4-7 via taskset in vr-opencomposite-launch) turned out to be
+  # chasing the wrong cause -- the original HMD pose jumping was actually
+  # the hardcoded-sensor-pose bug fixed by switching to the room-setup
+  # branch's real rig calibration, not CPU contention. Removed: with Touch
+  # controllers now also tracked (touch-controller-constellation-
+  # tracking.patch), the constellation tracker needs more compute than
+  # before, and confining it to half the machine's cores was actively
+  # counterproductive -- "Tracker is likely running slow" came right back,
+  # severely enough this time that both controllers' positions froze.
+
   services.udev.extraRules = ''
     # xr-hardware (pulled in automatically by services.monado) already covers
     # the CV1 HMD (2833:0031) and sensor (2833:0211), but this unit's sensor

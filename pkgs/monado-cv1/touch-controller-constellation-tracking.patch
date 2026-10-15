@@ -1,0 +1,277 @@
+diff --git a/src/xrt/drivers/rift/rift_internal.h b/src/xrt/drivers/rift/rift_internal.h
+index 48e4d0d..8ee4ef8 100644
+--- a/src/xrt/drivers/rift/rift_internal.h
++++ b/src/xrt/drivers/rift/rift_internal.h
+@@ -791,6 +791,22 @@ struct rift_touch_controller
+ 		uint16_t calibration_body_json_length;
+ 
+ 	} radio_data;
++
++	/*!
++	 * Constellation (camera-based) tracking state. Unlike the HMD, the LED model here isn't known until
++	 * the controller's calibration arrives asynchronously over radio (see rift_touch_calibration_parse),
++	 * so registration with the tracker happens lazily once that's ready -- see
++	 * rift_touch_controller_add_to_constellation_tracker in rift_radio.c.
++	 */
++	struct t_constellation_tracker *constellation_tracker;
++	struct t_constellation_tracker_device constellation_device;
++	t_constellation_device_id_t constellation_device_id;
++	struct xrt_imu_sink *constellation_imu_sink;
++	struct t_constellation_tracker_led_model led_model;
++	bool use_constellation_poses;
++	//! Last relation successfully fetched from the constellation tracker, for XRT_DEBUG_GUI visibility
++	//! while diagnosing whether this controller has a real position lock.
++	struct xrt_space_relation last_constellation_relation;
+ };
+ 
+ enum rift_remote_inputs
+diff --git a/src/xrt/drivers/rift/rift_radio.c b/src/xrt/drivers/rift/rift_radio.c
+index 2894880..383fac3 100644
+--- a/src/xrt/drivers/rift/rift_radio.c
++++ b/src/xrt/drivers/rift/rift_radio.c
+@@ -45,6 +45,75 @@ rift_touch_controller_get_tracked_pose(struct xrt_device *xdev,
+ 	case XRT_INPUT_TOUCH_AIM_POSE: {
+ 		struct xrt_space_relation relation = XRT_SPACE_RELATION_ZERO;
+ 
++		// Prefer the constellation tracker's 6dof pose (position + orientation) once this
++		// controller has been registered with it. Falls through to IMU-only orientation
++		// below if it's not ready yet or the tracker couldn't find this frame's pose.
++		if (controller->use_constellation_poses &&
++		    t_constellation_tracker_get_tracked_pose(controller->constellation_tracker,
++		                                             controller->constellation_device_id,
++		                                             (timepoint_ns)at_timestamp_ns, &relation) == 0 &&
++		    relation.relation_flags != 0) {
++			// The LED model's implicit local frame (inherited from the HMD's coordinate
++			// convention, applied to this controller's own raw calibration data) doesn't
++			// match the local frame XRT_INPUT_TOUCH_GRIP_POSE/AIM_POSE expect -- position
++			// is unaffected (it doesn't depend on which local axes we call "forward"), but
++			// orientation comes out rotated by a fixed offset. Tuned by eye against an
++			// actual headset (not derived from the calibration data), in two rounds:
++			//   v1 (90 about X, 180 about Z) left the controller pointing at the player
++			//   with the thumb down, instead of away from the player with the thumb up --
++			//   i.e. *both* the forward and up directions were reversed relative to
++			//   correct, which is exactly what a single 180 rotation about the remaining
++			//   (left-right) axis produces, applied on top of v1's own frame.
++			if (relation.relation_flags &
++			    (XRT_SPACE_RELATION_ORIENTATION_VALID_BIT | XRT_SPACE_RELATION_ORIENTATION_TRACKED_BIT)) {
++				struct xrt_vec3 fix_v1_euler_rad = {DEG_TO_RAD(90.0f), 0.0f, DEG_TO_RAD(180.0f)};
++				struct xrt_quat fix_v1;
++				math_quat_from_euler_angles(&fix_v1_euler_rad, &fix_v1);
++
++				struct xrt_quat flip_forward_and_up = {1.0f, 0.0f, 0.0f, 0.0f}; // 180 about X
++
++				struct xrt_quat fix;
++				math_quat_rotate(&fix_v1, &flip_forward_and_up, &fix);
++
++				struct xrt_quat corrected;
++				math_quat_rotate(&relation.pose.orientation, &fix, &corrected);
++				relation.pose.orientation = corrected;
++			}
++
++			// The tracked point is the LED ring, which sits in front of where the hand
++			// actually is -- for the grip pose specifically (not aim, which games use
++			// for pointing and should stay at the tracked point), pull it back towards
++			// the headset a little to approximate the real palm position. Oculus's own
++			// driver applies a similar, better-measured correction; this is a rough
++			// first estimate, not derived from the calibration data.
++			if (name == XRT_INPUT_TOUCH_GRIP_POSE &&
++			    (relation.relation_flags & XRT_SPACE_RELATION_POSITION_VALID_BIT)) {
++				struct xrt_space_relation hmd_relation = XRT_SPACE_RELATION_ZERO;
++				if (controller->hmd->constellation_tracker != NULL &&
++				    t_constellation_tracker_get_tracked_pose(
++				        controller->hmd->constellation_tracker, controller->hmd->constellation_device_id,
++				        (timepoint_ns)at_timestamp_ns, &hmd_relation) == 0 &&
++				    (hmd_relation.relation_flags & XRT_SPACE_RELATION_POSITION_VALID_BIT)) {
++					struct xrt_vec3 to_head = {
++					    hmd_relation.pose.position.x - relation.pose.position.x,
++					    hmd_relation.pose.position.y - relation.pose.position.y,
++					    hmd_relation.pose.position.z - relation.pose.position.z,
++					};
++					math_vec3_normalize(&to_head);
++
++					const float grip_pullback_m = 0.03f;
++					relation.pose.position.x += to_head.x * grip_pullback_m;
++					relation.pose.position.y += to_head.y * grip_pullback_m;
++					relation.pose.position.z += to_head.z * grip_pullback_m;
++				}
++			}
++
++			controller->last_constellation_relation = relation;
++			(*out_relation) = relation;
++			break;
++		}
++
++		relation = XRT_C11_COMPOUND(struct xrt_space_relation) XRT_SPACE_RELATION_ZERO;
+ 		if (imu_fusion_get_prediction(controller->input.imu_fusion, (uint64_t)at_timestamp_ns,
+ 		                              &relation.pose.orientation, &relation.angular_velocity) == 0) {
+ 			relation.relation_flags = XRT_SPACE_RELATION_ORIENTATION_VALID_BIT |
+@@ -61,6 +130,116 @@ rift_touch_controller_get_tracked_pose(struct xrt_device *xdev,
+ 	return XRT_SUCCESS;
+ }
+ 
++/*
++ * Touch controller constellation (camera-based) tracking.
++ *
++ * Unlike the HMD, Touch controllers were never wired into the constellation tracker at all --
++ * only orientation (from the controller's own IMU, relayed over radio) was ever tracked, position
++ * was simply never set. The controller's LED geometry needed to fix that was already being parsed
++ * from its calibration data (rift_touch_calibration_parse) for other purposes (joystick/trigger
++ * ranges, IMU calibration matrices) -- it just wasn't being handed to the constellation tracker.
++ */
++
++static void
++rift_touch_controller_build_led_model(struct rift_touch_controller *controller)
++{
++	struct rift_touch_controller_calibration *c = &controller->input.calibration;
++
++	controller->led_model.match_parameters = (struct t_constellation_tracker_led_model_match_parameters){
++	    // Confirmed via the registration log (24 LEDs on both controllers, every session) --
++	    // the HMD's own thresholds are roughly 25% of its ~34 LEDs, so 6/4 was already in that
++	    // ballpark, but the controller's LEDs sit in a ring: only ever about half face a given
++	    // camera, and real-world occlusion (fingers, the other hand, the HMD itself) eats into
++	    // that further. Nudged a bit more lenient, since the observed failure mode is "won't
++	    // lock" rather than "locks onto the wrong thing".
++	    .min_leds_for_correspondence_search_without_prior = 5,
++	    .min_leds_for_correspondence_search_with_prior = 3,
++	};
++
++	controller->led_model.leds = U_TYPED_ARRAY_CALLOC(struct t_constellation_tracker_led, c->num_leds);
++	controller->led_model.led_count = 0;
++
++	for (size_t i = 0; i < c->num_leds; i++) {
++		struct xrt_vec3 pos = {
++		    c->leds[i].position.x - c->imu_position.x,
++		    c->leds[i].position.y - c->imu_position.y,
++		    c->leds[i].position.z - c->imu_position.z,
++		};
++		struct xrt_vec3 normal = c->leds[i].normal;
++
++		// Same coordinate-system flip the HMD applies to its own calibration data, which comes
++		// from the same manufacturer format (see rift_read_led_model in rift_driver.c).
++		pos.x = -pos.x;
++		pos.z = -pos.z;
++		normal.x = -normal.x;
++		normal.z = -normal.z;
++		math_vec3_normalize(&normal);
++
++		controller->led_model.leds[controller->led_model.led_count++] = (struct t_constellation_tracker_led){
++		    .position = pos,
++		    .normal = normal,
++		    .radius_m = 0.0035f, // 3.5mm, same as the HMD's LEDs
++		    .visibility_angle = DEG_TO_RAD(90.0f),
++		    .id = (t_constellation_led_id_it)i,
++		};
++	}
++}
++
++static void
++rift_touch_controller_constellation_device_push_sample(struct t_constellation_tracker_device *connection,
++                                                        struct t_constellation_tracker_sample *sample)
++{
++	// No-op: rift_touch_controller_get_tracked_pose queries the tracker directly for each pose
++	// request instead of consuming a pushed stream, same as the HMD's primary pose path
++	// (get_raw_pose in rift_driver.c). Still required to satisfy the device interface.
++}
++
++static void
++rift_touch_controller_add_to_constellation_tracker(struct rift_touch_controller *controller)
++{
++	if (controller->constellation_tracker != NULL) {
++		return; // already added
++	}
++
++	// The HMD registers itself with the tracker as soon as it's created; controllers join later,
++	// asynchronously, once their calibration (and hence LED model) has arrived over radio.
++	struct t_constellation_tracker *tracker = controller->hmd->constellation_tracker;
++	if (tracker == NULL) {
++		return;
++	}
++
++	rift_touch_controller_build_led_model(controller);
++
++	controller->constellation_device.push_constellation_tracker_sample =
++	    rift_touch_controller_constellation_device_push_sample;
++
++	struct t_constellation_tracker_device_params params = {
++	    .led_model = controller->led_model,
++	    // Anchor correspondence search with the HMD's own current pose -- the controller is
++	    // almost always somewhere near it, which should help disambiguate blobs faster than
++	    // searching cold, and is intended to help with the frequent "mismatched LED id" rejections
++	    // seen without a prior.
++	    .tracking_source = &controller->hmd->constellation_tracking_source,
++	};
++
++	int ret = t_constellation_tracker_add_device(tracker, &params, &controller->constellation_device,
++	                                             &controller->constellation_device_id);
++	if (ret < 0) {
++		HMD_ERROR(controller->hmd, "Failed to add touch controller %d to constellation tracker: %d",
++		         controller->device_type, ret);
++		free(controller->led_model.leds);
++		controller->led_model.leds = NULL;
++		return;
++	}
++
++	controller->constellation_tracker = tracker;
++	controller->constellation_imu_sink = params.imu_sink;
++	controller->use_constellation_poses = true;
++
++	HMD_INFO(controller->hmd, "Touch controller %d added to constellation tracker (device id %d, %zu LEDs)",
++	        controller->device_type, controller->constellation_device_id, controller->led_model.led_count);
++}
++
+ static void
+ rift_touch_controller_destroy(struct xrt_device *xdev)
+ {}
+@@ -178,6 +357,15 @@ rift_touch_controller_node_destroy(struct xrt_frame_node *node)
+ 
+ 	u_var_remove_root(controller);
+ 
++	if (controller->constellation_tracker) {
++		t_constellation_tracker_remove_device(controller->constellation_tracker,
++		                                      controller->constellation_device_id);
++	}
++
++	if (controller->led_model.leds) {
++		free(controller->led_model.leds);
++	}
++
+ 	if (controller->input.mutex_created) {
+ 		os_mutex_destroy(&controller->input.mutex);
+ 	}
+@@ -433,6 +621,8 @@ rift_touch_controller_create(struct rift_hmd *hmd,
+ 	u_var_add_ro_i64_ns(controller, &controller->input.device_remote_ns, "Device Remote Timestamp");
+ 	u_var_add_ro_i64_ns(controller, &controller->input.device_local_ns, "Device Local Timestamp");
+ 	u_var_add_bool(controller, &controller->input.calibration_read, "Read Calibration");
++	u_var_add_bool(controller, &controller->use_constellation_poses, "Using Constellation Tracking");
++	u_var_add_pose(controller, &controller->last_constellation_relation.pose, "Last Constellation Pose");
+ 
+ 	{
+ 		u_var_add_gui_header(controller, NULL, "Input State");
+@@ -629,6 +819,8 @@ rift_touch_controller_calibration_body_read_callback(void *user_data, uint16_t a
+ 	controller->input.calibration_read = true;
+ 	os_mutex_unlock(&controller->input.mutex);
+ 
++	rift_touch_controller_add_to_constellation_tracker(controller);
++
+ 	char calibration_filename[RIFT_TOUCH_CONTROLLER_CALIBRATION_FILENAME_MAX_LEN];
+ 	rift_touch_controller_get_calibration_filename(controller, calibration_filename);
+ 
+@@ -694,6 +886,7 @@ rift_touch_controller_calibration_hash_read_callback(void *user_data, uint16_t a
+ 			                                 file_size - CALIBRATION_HASH_BYTE_LENGTH,
+ 			                                 &controller->input.calibration)) {
+ 				controller->input.calibration_read = true;
++				rift_touch_controller_add_to_constellation_tracker(controller);
+ 				free(calibration_data);
+ 				return 0;
+ 			} else {
+@@ -904,6 +1097,10 @@ rift_touch_controller_handle_radio_input_report(struct rift_hmd *hmd,
+ 	imu_fusion_incorporate_gyros_and_accelerometer(controller->input.imu_fusion, imu_sample.timestamp_ns, &gyro,
+ 	                                               &gyro_variance, &accel, &accel_variance, NULL);
+ 
++	if (controller->constellation_imu_sink != NULL) {
++		xrt_sink_push_imu(controller->constellation_imu_sink, &imu_sample);
++	}
++
+ 	os_mutex_unlock(&controller->input.mutex);
+ }
+ 
