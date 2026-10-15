@@ -137,7 +137,7 @@ services.xserver.windowManager.openbox.enable = true;
     nvidiaSettings = true;
 
     # Select the appropriate driver version (stable, beta, production, etc.)
-    package = config.boot.kernelPackages.nvidiaPackages.stable;
+    package = config.boot.kernelPackages.nvidiaPackages.legacy_580;
   };
   hardware.nvidia-container-toolkit.enable = true;
   boot.blacklistedKernelModules = ["nouveau"];
