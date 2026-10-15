@@ -16,6 +16,7 @@ in {
   security.sudo.package = pkgs.sudo.override {withInsults = true;};
 
   nixpkgs.config.allowUnfree = true;
+  environment.sessionVariables.NIXPKGS_ALLOW_UNFREE = "1";
 
   users.users.${username}.uid = 1000;
 

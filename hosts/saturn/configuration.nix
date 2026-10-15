@@ -11,10 +11,6 @@
     pipewire.enable = true;
   };
 
-  environment.sessionVariables = {
-    NIXPKGS_ALLOW_UNFREE = "1";
-  };
-
   services.gnome.gnome-keyring.enable = true;
 
   nichts.remote-builders.enable = true;
